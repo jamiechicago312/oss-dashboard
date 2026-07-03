@@ -1,0 +1,107 @@
+{
+  "target": {
+    "kind": "repo",
+    "owner": "microsoft",
+    "repo": "PowerToys",
+    "slug": "microsoft/PowerToys"
+  },
+  "org": {
+    "login": "microsoft/PowerToys",
+    "publicRepos": 1,
+    "archivedRepos": 0
+  },
+  "snapshot": {
+    "generatedAt": "2026-07-03T22:45:20.202Z",
+    "orgDirectory": "/Users/jamie/Documents/GitHub/oss-dashboard/data/repos/microsoft/powertoys",
+    "tokensUsed": 4,
+    "notes": [
+      "Org member counts combine public membership data with users observed as MEMBER or OWNER on recent PRs.",
+      "Maintainer counts are approximated from public PR author associations and do not expose full collaborator permission grids.",
+      "Contributor experience metrics are calculated only for external-contributor PRs opened in the last 90 days.",
+      "Good first issue metrics look for labels normalized to `goodfirstissue`, so `good first issue` and `good-first-issue` are both counted.",
+      "Contribution guide detection uses GitHub's public community profile data and may miss unconventional onboarding docs outside the standard contributing file path.",
+      "Review fetches are limited to external-contributor PRs to reduce API pressure on large targets."
+    ]
+  },
+  "metrics": {
+    "vanity": {
+      "stars": 135981,
+      "forks": 8190
+    },
+    "pullRequestTotals": {
+      "opened": 8194,
+      "merged": 6804,
+      "closed": 1247
+    },
+    "people": {
+      "uniqueRepoContributors": 411,
+      "orgMembers": 3,
+      "maintainers": 6,
+      "externalContributors": 72
+    },
+    "contributorReadiness": {
+      "reposWithGoodFirstIssueLabel": 1,
+      "reposWithOpenGoodFirstIssues": 1,
+      "openGoodFirstIssues": 3,
+      "reposWithContributingGuide": 0,
+      "reposWithoutContributingGuide": 1
+    }
+  },
+  "analysis": {
+    "window": {
+      "start": "2026-04-04T22:45:20.202Z",
+      "end": "2026-07-03T22:45:20.202Z",
+      "label": "Last 90 days"
+    },
+    "pullRequests": {
+      "total": 627,
+      "byActor": {
+        "external": {
+          "count": 408,
+          "percent": 65.1
+        },
+        "maintainer": {
+          "count": 110,
+          "percent": 17.5
+        },
+        "orgMember": {
+          "count": 109,
+          "percent": 17.4
+        },
+        "unknown": {
+          "count": 0,
+          "percent": 0
+        }
+      }
+    },
+    "externalContributors": {
+      "uniqueContributors": 72,
+      "repeatContributors": 31,
+      "averageHoursToFirstReview": 99.88,
+      "averageHoursToMerge": 171.57
+    },
+    "contributorReadiness": {
+      "repos": [
+        {
+          "repo": "PowerToys",
+          "goodFirstIssueLabel": "Good first issue",
+          "openGoodFirstIssues": 3,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "topGoodFirstIssueRepos": [
+        {
+          "repo": "PowerToys",
+          "goodFirstIssueLabel": "Good first issue",
+          "openGoodFirstIssues": 3,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "reposMissingContributingGuide": [
+        "PowerToys"
+      ]
+    }
+  }
+}

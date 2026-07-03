@@ -1,9 +1,30 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AnalyzeOrgResponse } from "@/lib/github/types";
 
 const numberFormat = new Intl.NumberFormat("en-US");
+const DEMO_TIMESTAMP_LABEL = "Data is current as of July 3, 2026 17:42 UTC-4.";
+const DEMO_TARGETS = [
+  {
+    id: "nodejs",
+    label: "Node.js Org",
+    description: "nodejs",
+    dataPath: "/demo-data/nodejs.json",
+  },
+  {
+    id: "microsoft-powertoys",
+    label: "PowerToys Repo",
+    description: "microsoft/PowerToys",
+    dataPath: "/demo-data/microsoft-powertoys.json",
+  },
+  {
+    id: "forpublicai",
+    label: "ForPublicAI Org",
+    description: "forpublicai",
+    dataPath: "/demo-data/forpublicai.json",
+  },
+] as const;
 
 function formatNumber(value: number) {
   return numberFormat.format(value);
@@ -69,36 +90,32 @@ function MetricTable({
 }
 
 export function DashboardShell() {
-  const [target, setTarget] = useState("");
+  const [activeTargetId, setActiveTargetId] = useState<(typeof DEMO_TARGETS)[number]["id"]>(
+    DEMO_TARGETS[0].id,
+  );
   const [result, setResult] = useState<AnalyzeOrgResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const trimmedTarget = target.trim();
-    if (!trimmedTarget) {
-      setError("Enter a GitHub organization slug or owner/repo.");
+  async function loadDemoTarget(targetId: (typeof DEMO_TARGETS)[number]["id"]) {
+    const selectedTarget = DEMO_TARGETS.find((target) => target.id === targetId);
+    if (!selectedTarget) {
+      setError("Unknown demo target.");
       return;
     }
 
+    setActiveTargetId(targetId);
     setStatus("loading");
     setError(null);
     setResult(null);
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ target: trimmedTarget }),
+      const response = await fetch(selectedTarget.dataPath, {
+        cache: "no-store",
       });
-
       const payload = (await response.json()) as AnalyzeOrgResponse | { error: string };
       if (!response.ok) {
-        throw new Error("error" in payload ? payload.error : "Failed to analyze organization.");
+        throw new Error("error" in payload ? payload.error : "Failed to load demo snapshot.");
       }
 
       setResult(payload as AnalyzeOrgResponse);
@@ -108,6 +125,10 @@ export function DashboardShell() {
       setError(submissionError instanceof Error ? submissionError.message : "Unknown error.");
     }
   }
+
+  useEffect(() => {
+    void loadDemoTarget(DEMO_TARGETS[0].id);
+  }, []);
 
   const actorRows = useMemo(() => {
     if (!result) {
@@ -167,29 +188,32 @@ export function DashboardShell() {
         <div className="hero__badge">OSS due diligence</div>
         <h1>Ride the perimeter before you commit to the ranch.</h1>
         <p>
-          Pull a full public-org snapshot from GitHub, save it as JSON locally, and inspect
-          contribution health across every public repository in that organization or drill into a
-          single repository.
+          Inspect three fixed GitHub snapshots prepared for demo review. Each button loads a
+          committed local JSON snapshot so the deployed demo stays fast and deterministic.
         </p>
 
-        <form onSubmit={onSubmit} className="search-form">
-          <label htmlFor="target">GitHub org or repo</label>
-          <div className="search-form__row">
-            <input
-              id="target"
-              name="target"
-              value={target}
-              onChange={(event) => setTarget(event.target.value)}
-              placeholder="nodejs or nodejs/node"
-              autoComplete="off"
-            />
-            <button type="submit">Go</button>
+        <div className="target-picker">
+          <p className="target-picker__label">Choose a demo snapshot</p>
+          <div className="target-picker__grid">
+            {DEMO_TARGETS.map((target) => (
+              <button
+                key={target.id}
+                type="button"
+                className={target.id === activeTargetId ? "target-button is-active" : "target-button"}
+                onClick={() => {
+                  void loadDemoTarget(target.id);
+                }}
+              >
+                <strong>{target.label}</strong>
+                <span>{target.description}</span>
+              </button>
+            ))}
           </div>
-        </form>
+        </div>
 
         <div className="hero__notes">
-          <span>Uses `GITHUB_TOKEN_1..4` when available.</span>
-          <span>Saves snapshots to `data/orgs/&lt;org&gt;`.</span>
+          <span>Demo targets are fixed for this deployment.</span>
+          <span>{DEMO_TIMESTAMP_LABEL}</span>
         </div>
       </section>
 

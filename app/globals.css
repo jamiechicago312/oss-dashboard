@@ -141,6 +141,56 @@ input {
   color: rgba(26, 26, 26, 0.65);
 }
 
+.target-picker {
+  margin-top: 1.9rem;
+}
+
+.target-picker__label {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(26, 26, 26, 0.72);
+}
+
+.target-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.target-button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-start;
+  padding: 1rem 1.05rem;
+  border: 1px solid rgba(23, 50, 77, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.target-button strong {
+  font-size: 1rem;
+  color: var(--midnight);
+}
+
+.target-button span {
+  font-size: 0.84rem;
+  color: rgba(26, 26, 26, 0.72);
+}
+
+.target-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(23, 50, 77, 0.26);
+}
+
+.target-button.is-active {
+  border-color: rgba(166, 64, 42, 0.38);
+  background: linear-gradient(180deg, rgba(166, 64, 42, 0.12), rgba(255, 255, 255, 0.88));
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -317,7 +367,8 @@ input {
 
 @media (max-width: 900px) {
   .dashboard-grid,
-  .stat-grid {
+  .stat-grid,
+  .target-picker__grid {
     grid-template-columns: 1fr;
   }
 

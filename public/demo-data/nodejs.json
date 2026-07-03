@@ -1,0 +1,1977 @@
+{
+  "target": {
+    "kind": "org",
+    "owner": "nodejs",
+    "repo": null,
+    "slug": "nodejs"
+  },
+  "org": {
+    "login": "nodejs",
+    "publicRepos": 231,
+    "archivedRepos": 127
+  },
+  "snapshot": {
+    "generatedAt": "2026-07-03T21:31:45.869Z",
+    "orgDirectory": "/Users/jamie/Documents/GitHub/oss-dashboard/data/orgs/nodejs",
+    "tokensUsed": 4,
+    "notes": [
+      "Org member counts combine public membership data with users observed as MEMBER or OWNER on recent PRs.",
+      "Maintainer counts are approximated from public PR author associations and do not expose full collaborator permission grids.",
+      "Contributor experience metrics are calculated only for external-contributor PRs opened in the last 90 days.",
+      "Good first issue metrics look for labels normalized to `goodfirstissue`, so `good first issue` and `good-first-issue` are both counted.",
+      "Contribution guide detection uses GitHub's public community profile data and may miss unconventional onboarding docs outside the standard contributing file path.",
+      "Review fetches are limited to external-contributor PRs to reduce API pressure on large targets.",
+      "Contributor collection was skipped because one or more GitHub responses were incomplete or invalid during this refresh.",
+      "Recent PR collection was skipped because GitHub rate limits were reached for this refresh."
+    ]
+  },
+  "metrics": {
+    "vanity": {
+      "stars": 242834,
+      "forks": 66219
+    },
+    "pullRequestTotals": {
+      "opened": 83073,
+      "merged": 41543,
+      "closed": 39837
+    },
+    "people": {
+      "uniqueRepoContributors": 0,
+      "orgMembers": 205,
+      "maintainers": 0,
+      "externalContributors": 0
+    },
+    "contributorReadiness": {
+      "reposWithGoodFirstIssueLabel": 105,
+      "reposWithOpenGoodFirstIssues": 11,
+      "openGoodFirstIssues": 33,
+      "reposWithContributingGuide": 0,
+      "reposWithoutContributingGuide": 231
+    }
+  },
+  "analysis": {
+    "window": {
+      "start": "2026-04-04T21:31:45.869Z",
+      "end": "2026-07-03T21:31:45.869Z",
+      "label": "Last 90 days"
+    },
+    "pullRequests": {
+      "total": 0,
+      "byActor": {
+        "external": {
+          "count": 0,
+          "percent": 0
+        },
+        "maintainer": {
+          "count": 0,
+          "percent": 0
+        },
+        "orgMember": {
+          "count": 0,
+          "percent": 0
+        },
+        "unknown": {
+          "count": 0,
+          "percent": 0
+        }
+      }
+    },
+    "externalContributors": {
+      "uniqueContributors": 0,
+      "repeatContributors": 0,
+      "averageHoursToFirstReview": null,
+      "averageHoursToMerge": null
+    },
+    "contributorReadiness": {
+      "repos": [
+        {
+          "repo": "node",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "jenkins-alerts",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "web-team",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "uvwasi",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "build",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "doc-kit",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "docker-node",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-gyp",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "release-cloudflare-worker",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs.org",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "import-in-the-middle",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "undici",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-auto-test",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "snap",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "Release",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-dist-indexer",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "reliability",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "learn",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 5,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llhttp",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-v0.x-archive",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "undici-website",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "readable-stream",
+          "goodFirstIssueLabel": "good-first-issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "next-10",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "userland-migrations",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-dependency-vuln-assessments",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "unofficial-builds",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "gyp-next",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "devcontainer",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "create-node-meeting-artifacts",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "corepack",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "diagnostics",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "orchestrion-js",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "release-keys",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-core-utils",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-addon-api",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "package-examples",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "help",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "abi-stable-node",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "http-parser",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "remark-preset-lint-node",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "tweet",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "github-bot",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nan",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-v8",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-meeting-agenda",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "changelog-maker",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "citgm",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node.js.org",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "security-wg",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs.dev",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "postject",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "TSC",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ncrypto",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-review",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "primordials-use-cases",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "amaro",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "single-executable",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "tooling",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "web-server-frameworks",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "standards-positions",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "discord-status-worker",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-addon-examples",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "admin",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "getting-started",
+          "goodFirstIssueLabel": "Good First Issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "branch-diff",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "examples",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "repl",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-api-cts",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "performance",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 5,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "full-icu-npm",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-chakracore",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "require-in-the-middle",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": ".github",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llnode",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 8,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "is-my-node-vulnerable",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "official-images",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "core-validate-commit",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-pr-doc-preview",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "evangelism",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "mentorship",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-api-headers",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "merve",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "lts-schedule",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-news-feeder",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llparse",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "typescript",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nbytes",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "community-committee",
+          "goodFirstIssueLabel": "good-first-issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-inspect",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "dev-policy",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-convergence-archive",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "email",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-zh-CN",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "cjs-module-lexer",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "bluesky",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 4,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "education",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "package-maintenance",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 2,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "caritat",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "roadmap",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "iojs.org",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "http-next",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "test-runner",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-eps",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "loaders-test",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-core-test",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "string_decoder",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ko",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "installer",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-latest-linker",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "modules",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "api",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "security-advisories",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "quic",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "commit-stream",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-code-ide-configs",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "Gzemnid",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "outreach",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ci-config-travis",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "benchmarking",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-uk",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "board",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "wasm-builder",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "http2",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "mikeal",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-report",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "loaders",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "webidl-napi",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "open-standards",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "website-redesign",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "abi-stable-node-addon-examples",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ja",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-es",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "foundation.nodejs.org",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "i18n",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "live.nodejs.org",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "tap2junit",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-vi",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "user-feedback",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-cve-checker",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "meeting-picker",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "worker",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ecmascript-modules",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "social-team",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "collaborators-public-votes",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "version-management",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "build-toolchain-next",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-collection",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "wiki-archive",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "hardware",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llparse-frontend",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "make-node-meeting",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-pr-labeler",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "node-version-jenkins-plugin",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-nightly-builder",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "sqlite-extension-sample",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "eslint-plugin-nodejs-internal",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "full-icu-test",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "icu4c-data-npm",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llparse-test-fixture",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "llparse-builder",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs.org-archive",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ar",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ru",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "webcrypto",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "package-compliant",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "automation",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "NG",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-da",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-zh-TW",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-pt",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "code-and-learn",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-tr",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "dynamic-modules",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ci-config-github-actions",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "docker-iojs",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "build-container-sync",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "post-mortem",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "wasi",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-id",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "CTC",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "promises",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "promises-debugging",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "social-media-delegates",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "vm",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-bn",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "promise-use-cases",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "community-events",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs.org-new",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ffi",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "logos",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "build-containers",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-sv",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-cs",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-mk",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ms",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-no",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "doc-tool",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-fi",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "http",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "foundation-slides",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "contribution-slides",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "smoke-test",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "v8",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "Future-CI",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "inclusivity",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "docs",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "testing",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "enterprise-advisory-group",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodetogether",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "Intl",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "commit-queue",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "wishlist",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "bot-love",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "whatwg-stream",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "badges",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 4,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-he",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-it",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-bg",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-de",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-el",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-fa",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-hi",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-hu",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ka",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-nl",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-pl",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-sw",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-ta",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "inclusivity-slack-inviter",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "perfetto-nodejs-wip",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "nodejs-fr",
+          "goodFirstIssueLabel": null,
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "topGoodFirstIssueRepos": [
+        {
+          "repo": "llnode",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 8,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "learn",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 5,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "performance",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 5,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "bluesky",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 4,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "badges",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 4,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "reposMissingContributingGuide": [
+        ".github",
+        "abi-stable-node",
+        "abi-stable-node-addon-examples",
+        "admin",
+        "amaro",
+        "api",
+        "automation",
+        "badges",
+        "benchmarking",
+        "bluesky",
+        "board",
+        "bot-love",
+        "branch-diff",
+        "build",
+        "build-container-sync",
+        "build-containers",
+        "build-toolchain-next",
+        "caritat",
+        "changelog-maker",
+        "ci-config-github-actions",
+        "ci-config-travis",
+        "citgm",
+        "cjs-module-lexer",
+        "code-and-learn",
+        "collaborators-public-votes",
+        "commit-queue",
+        "commit-stream",
+        "community-committee",
+        "community-events",
+        "contribution-slides",
+        "core-validate-commit",
+        "corepack",
+        "create-node-meeting-artifacts",
+        "CTC",
+        "dev-policy",
+        "devcontainer",
+        "diagnostics",
+        "discord-status-worker",
+        "doc-kit",
+        "doc-tool",
+        "docker-iojs",
+        "docker-node",
+        "docs",
+        "dynamic-modules",
+        "ecmascript-modules",
+        "education",
+        "email",
+        "enterprise-advisory-group",
+        "eslint-plugin-nodejs-internal",
+        "evangelism",
+        "examples",
+        "ffi",
+        "foundation-slides",
+        "foundation.nodejs.org",
+        "full-icu-npm",
+        "full-icu-test",
+        "Future-CI",
+        "getting-started",
+        "github-bot",
+        "gyp-next",
+        "Gzemnid",
+        "hardware",
+        "help",
+        "http",
+        "http-next",
+        "http-parser",
+        "http2",
+        "i18n",
+        "icu4c-data-npm",
+        "import-in-the-middle",
+        "inclusivity",
+        "inclusivity-slack-inviter",
+        "installer",
+        "Intl",
+        "iojs.org",
+        "is-my-node-vulnerable",
+        "jenkins-alerts",
+        "learn",
+        "live.nodejs.org",
+        "llhttp",
+        "llnode",
+        "llparse",
+        "llparse-builder",
+        "llparse-frontend",
+        "llparse-test-fixture",
+        "loaders",
+        "loaders-test",
+        "logos",
+        "lts-schedule",
+        "make-node-meeting",
+        "meeting-picker",
+        "mentorship",
+        "merve",
+        "mikeal",
+        "modules",
+        "nan",
+        "nbytes",
+        "ncrypto",
+        "next-10",
+        "NG",
+        "node",
+        "node-addon-api",
+        "node-addon-examples",
+        "node-api-cts",
+        "node-api-headers",
+        "node-auto-test",
+        "node-chakracore",
+        "node-code-ide-configs",
+        "node-convergence-archive",
+        "node-core-test",
+        "node-core-utils",
+        "node-eps",
+        "node-gyp",
+        "node-inspect",
+        "node-meeting-agenda",
+        "node-pr-doc-preview",
+        "node-pr-labeler",
+        "node-report",
+        "node-review",
+        "node-v0.x-archive",
+        "node-v8",
+        "node-version-jenkins-plugin",
+        "node.js.org",
+        "nodejs-ar",
+        "nodejs-bg",
+        "nodejs-bn",
+        "nodejs-collection",
+        "nodejs-cs",
+        "nodejs-cve-checker",
+        "nodejs-da",
+        "nodejs-de",
+        "nodejs-dependency-vuln-assessments",
+        "nodejs-dist-indexer",
+        "nodejs-el",
+        "nodejs-es",
+        "nodejs-fa",
+        "nodejs-fi",
+        "nodejs-fr",
+        "nodejs-he",
+        "nodejs-hi",
+        "nodejs-hu",
+        "nodejs-id",
+        "nodejs-it",
+        "nodejs-ja",
+        "nodejs-ka",
+        "nodejs-ko",
+        "nodejs-latest-linker",
+        "nodejs-mk",
+        "nodejs-ms",
+        "nodejs-news-feeder",
+        "nodejs-nightly-builder",
+        "nodejs-nl",
+        "nodejs-no",
+        "nodejs-pl",
+        "nodejs-pt",
+        "nodejs-ru",
+        "nodejs-sv",
+        "nodejs-sw",
+        "nodejs-ta",
+        "nodejs-tr",
+        "nodejs-uk",
+        "nodejs-vi",
+        "nodejs-zh-CN",
+        "nodejs-zh-TW",
+        "nodejs.dev",
+        "nodejs.org",
+        "nodejs.org-archive",
+        "nodejs.org-new",
+        "nodetogether",
+        "official-images",
+        "open-standards",
+        "orchestrion-js",
+        "outreach",
+        "package-compliant",
+        "package-examples",
+        "package-maintenance",
+        "perfetto-nodejs-wip",
+        "performance",
+        "post-mortem",
+        "postject",
+        "primordials-use-cases",
+        "promise-use-cases",
+        "promises",
+        "promises-debugging",
+        "quic",
+        "readable-stream",
+        "Release",
+        "release-cloudflare-worker",
+        "release-keys",
+        "reliability",
+        "remark-preset-lint-node",
+        "repl",
+        "require-in-the-middle",
+        "roadmap",
+        "security-advisories",
+        "security-wg",
+        "single-executable",
+        "smoke-test",
+        "snap",
+        "social-media-delegates",
+        "social-team",
+        "sqlite-extension-sample",
+        "standards-positions",
+        "string_decoder",
+        "tap2junit",
+        "test-runner",
+        "testing",
+        "tooling",
+        "TSC",
+        "tweet",
+        "typescript",
+        "undici",
+        "undici-website",
+        "unofficial-builds",
+        "user-feedback",
+        "userland-migrations",
+        "uvwasi",
+        "v8",
+        "version-management",
+        "vm",
+        "wasi",
+        "wasm-builder",
+        "web-server-frameworks",
+        "web-team",
+        "webcrypto",
+        "webidl-napi",
+        "website-redesign",
+        "whatwg-stream",
+        "wiki-archive",
+        "wishlist",
+        "worker"
+      ]
+    }
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "target": {
+    "kind": "org",
+    "owner": "forpublicai",
+    "repo": null,
+    "slug": "forpublicai"
+  },
+  "org": {
+    "login": "forpublicai",
+    "publicRepos": 22,
+    "archivedRepos": 0
+  },
+  "snapshot": {
+    "generatedAt": "2026-07-03T22:45:21.007Z",
+    "orgDirectory": "/Users/jamie/Documents/GitHub/oss-dashboard/data/orgs/forpublicai",
+    "tokensUsed": 4,
+    "notes": [
+      "Org member counts combine public membership data with users observed as MEMBER or OWNER on recent PRs.",
+      "Maintainer counts are approximated from public PR author associations and do not expose full collaborator permission grids.",
+      "Contributor experience metrics are calculated only for external-contributor PRs opened in the last 90 days.",
+      "Good first issue metrics look for labels normalized to `goodfirstissue`, so `good first issue` and `good-first-issue` are both counted.",
+      "Contribution guide detection uses GitHub's public community profile data and may miss unconventional onboarding docs outside the standard contributing file path.",
+      "Review fetches are limited to external-contributor PRs to reduce API pressure on large targets."
+    ]
+  },
+  "metrics": {
+    "vanity": {
+      "stars": 157,
+      "forks": 35
+    },
+    "pullRequestTotals": {
+      "opened": 96,
+      "merged": 72,
+      "closed": 11
+    },
+    "people": {
+      "uniqueRepoContributors": 1067,
+      "orgMembers": 0,
+      "maintainers": 1,
+      "externalContributors": 7
+    },
+    "contributorReadiness": {
+      "reposWithGoodFirstIssueLabel": 22,
+      "reposWithOpenGoodFirstIssues": 3,
+      "openGoodFirstIssues": 6,
+      "reposWithContributingGuide": 0,
+      "reposWithoutContributingGuide": 22
+    }
+  },
+  "analysis": {
+    "window": {
+      "start": "2026-04-04T22:45:21.007Z",
+      "end": "2026-07-03T22:45:21.007Z",
+      "label": "Last 90 days"
+    },
+    "pullRequests": {
+      "total": 19,
+      "byActor": {
+        "external": {
+          "count": 17,
+          "percent": 89.5
+        },
+        "maintainer": {
+          "count": 2,
+          "percent": 10.5
+        },
+        "orgMember": {
+          "count": 0,
+          "percent": 0
+        },
+        "unknown": {
+          "count": 0,
+          "percent": 0
+        }
+      }
+    },
+    "externalContributors": {
+      "uniqueContributors": 7,
+      "repeatContributors": 2,
+      "averageHoursToFirstReview": 0.39,
+      "averageHoursToMerge": 44.7
+    },
+    "contributorReadiness": {
+      "repos": [
+        {
+          "repo": "chat.publicai.co",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 3,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "librarieskiosk",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "safemolt",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.co",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 2,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai-mcp-server",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.network",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "libraries-kiosk",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "mobile-app-2",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.ch",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai-flywheel-experiments",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai_survey",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "ADHDAI",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": ".github",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "commune",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "platform.publicai.co",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "open-webui",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.uk",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.us",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "litellm",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "huggingface.js",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "personalize",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "manymodels",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 0,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "topGoodFirstIssueRepos": [
+        {
+          "repo": "chat.publicai.co",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 3,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.co",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 2,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        },
+        {
+          "repo": "publicai.network",
+          "goodFirstIssueLabel": "good first issue",
+          "openGoodFirstIssues": 1,
+          "hasContributingGuide": false,
+          "contributingGuidePath": null
+        }
+      ],
+      "reposMissingContributingGuide": [
+        ".github",
+        "ADHDAI",
+        "chat.publicai.co",
+        "commune",
+        "huggingface.js",
+        "libraries-kiosk",
+        "librarieskiosk",
+        "litellm",
+        "manymodels",
+        "mobile-app-2",
+        "open-webui",
+        "personalize",
+        "platform.publicai.co",
+        "publicai_survey",
+        "publicai-flywheel-experiments",
+        "publicai-mcp-server",
+        "publicai.ch",
+        "publicai.co",
+        "publicai.network",
+        "publicai.uk",
+        "publicai.us",
+        "safemolt"
+      ]
+    }
+  }
+}
