@@ -1,0 +1,337 @@
+:root {
+  --sand-1: #f4ead7;
+  --sand-2: #e3d1b0;
+  --sand-3: #c79e6a;
+  --leather: #7d4e2d;
+  --canyon: #a6402a;
+  --sage: #486148;
+  --midnight: #17324d;
+  --ink: #1a1a1a;
+  --cream: #fff9ef;
+  --line: rgba(23, 50, 77, 0.16);
+  --shadow: rgba(26, 26, 26, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top, rgba(244, 234, 215, 0.95), rgba(244, 234, 215, 0.6) 30%, transparent 60%),
+    linear-gradient(180deg, #a8c3d9 0%, #d8e5ec 24%, #e8d7bc 24%, #c99563 58%, #9a5b3a 100%);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.page-shell {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 249, 239, 0.86);
+  box-shadow: 0 24px 50px var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.panel--wide {
+  grid-column: 1 / -1;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% auto;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(166, 64, 42, 0.2), transparent 65%);
+}
+
+.hero__badge {
+  display: inline-flex;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(72, 97, 72, 0.14);
+  color: var(--sage);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.hero h1 {
+  margin: 0.85rem 0 0.75rem;
+  max-width: 11ch;
+  font-size: clamp(2.7rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  color: var(--midnight);
+}
+
+.hero p {
+  max-width: 62ch;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.search-form {
+  margin-top: 1.75rem;
+}
+
+.search-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.search-form__row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(23, 50, 77, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.search-form button {
+  padding: 0.95rem 1.4rem;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--midnight), #31587d);
+  color: var(--cream);
+  cursor: pointer;
+}
+
+.hero__notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: rgba(26, 26, 26, 0.65);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1.2rem;
+}
+
+.panel__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--midnight);
+}
+
+.panel__header p {
+  margin: 0.35rem 0 0;
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.eyebrow-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.eyebrow-list span {
+  display: inline-flex;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(23, 50, 77, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(23, 50, 77, 0.08);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.stat-card p,
+.stat-card span {
+  margin: 0;
+  color: rgba(26, 26, 26, 0.7);
+}
+
+.stat-card h3 {
+  margin: 0.45rem 0 0.25rem;
+  font-size: 2rem;
+  color: var(--midnight);
+}
+
+.stat-card--blue {
+  background: linear-gradient(180deg, rgba(23, 50, 77, 0.1), rgba(255, 255, 255, 0.85));
+}
+
+.stat-card--red {
+  background: linear-gradient(180deg, rgba(166, 64, 42, 0.12), rgba(255, 255, 255, 0.85));
+}
+
+.stat-card--green {
+  background: linear-gradient(180deg, rgba(72, 97, 72, 0.12), rgba(255, 255, 255, 0.85));
+}
+
+.stat-card--brown {
+  background: linear-gradient(180deg, rgba(125, 78, 45, 0.14), rgba(255, 255, 255, 0.85));
+}
+
+.metric-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.metric-table__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px dashed rgba(23, 50, 77, 0.14);
+}
+
+.metric-table__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.metric-table__row strong,
+.metric-table__row span {
+  font-size: 1.05rem;
+}
+
+.metric-table__row p {
+  margin: 0.25rem 0 0;
+  max-width: 28ch;
+  font-size: 0.84rem;
+  color: rgba(26, 26, 26, 0.68);
+}
+
+.loading-panel,
+.error-panel,
+.dashboard-grid > .panel,
+.dashboard-grid > .panel--wide {
+  padding: 1.4rem;
+}
+
+.loading-panel,
+.error-panel {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.spinner-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 1rem;
+}
+
+.spinner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.spinner--outer {
+  border-top-color: var(--midnight);
+  border-bottom-color: var(--midnight);
+  animation: spin 7s linear infinite;
+}
+
+.spinner--middle {
+  inset: 14px;
+  border-left-color: var(--canyon);
+  border-right-color: var(--canyon);
+  animation: spin 5s linear infinite reverse;
+}
+
+.spinner--inner {
+  inset: 36px;
+  border-top-color: var(--sage);
+  border-bottom-color: var(--sage);
+  animation: spin 3.8s linear infinite;
+}
+
+.caveat-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  line-height: 1.6;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid,
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel__header,
+  .metric-table__row,
+  .search-form__row {
+    flex-direction: column;
+  }
+
+  .search-form button {
+    width: 100%;
+  }
+
+  .hero h1 {
+    max-width: 100%;
+  }
+}
