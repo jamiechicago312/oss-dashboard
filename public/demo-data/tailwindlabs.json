@@ -1,0 +1,70 @@
+{
+  "org": {
+    "login": "tailwindlabs",
+    "publicRepos": 27,
+    "archivedRepos": 11
+  },
+  "snapshot": {
+    "generatedAt": "2026-07-03T20:17:47.148Z",
+    "orgDirectory": "/Users/jamie/Documents/GitHub/oss-dashboard/data/orgs/tailwindlabs",
+    "tokensUsed": 4,
+    "notes": [
+      "Install rate is omitted unless a package-ecosystem signal is added later.",
+      "Org member counts combine public membership data with users observed as MEMBER or OWNER on recent PRs.",
+      "Maintainer counts are approximated from public PR author associations and do not expose full collaborator permission grids.",
+      "Contributor experience metrics are calculated only for external-contributor PRs opened in the last 90 days."
+    ]
+  },
+  "metrics": {
+    "vanity": {
+      "stars": 181688,
+      "forks": 10349,
+      "installSignal": null
+    },
+    "pullRequestTotals": {
+      "opened": 8382,
+      "merged": 6175,
+      "closed": 1999
+    },
+    "people": {
+      "uniqueRepoContributors": 673,
+      "orgMembers": 4,
+      "maintainers": 1,
+      "externalContributors": 65
+    }
+  },
+  "analysis": {
+    "window": {
+      "start": "2026-04-04T20:17:47.148Z",
+      "end": "2026-07-03T20:17:47.148Z",
+      "label": "Last 90 days"
+    },
+    "pullRequests": {
+      "total": 245,
+      "byActor": {
+        "external": {
+          "count": 140,
+          "percent": 57.1
+        },
+        "maintainer": {
+          "count": 1,
+          "percent": 0.4
+        },
+        "orgMember": {
+          "count": 104,
+          "percent": 42.4
+        },
+        "unknown": {
+          "count": 0,
+          "percent": 0
+        }
+      }
+    },
+    "externalContributors": {
+      "uniqueContributors": 65,
+      "repeatContributors": 17,
+      "averageHoursToFirstReview": 55.04,
+      "averageHoursToMerge": 126.6
+    }
+  }
+}

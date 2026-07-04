@@ -24,6 +24,12 @@ const DEMO_TARGETS = [
     description: "forpublicai",
     dataPath: "/demo-data/forpublicai.json",
   },
+  {
+    id: "tailwindlabs",
+    label: "Tailwind Labs Org",
+    description: "tailwindlabs",
+    dataPath: "/demo-data/tailwindlabs.json",
+  },
 ] as const;
 
 function formatNumber(value: number) {
