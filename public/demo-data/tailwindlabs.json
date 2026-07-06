@@ -1,4 +1,10 @@
 {
+  "target": {
+    "kind": "org",
+    "owner": "tailwindlabs",
+    "repo": null,
+    "slug": "tailwindlabs"
+  },
   "org": {
     "login": "tailwindlabs",
     "publicRepos": 27,
@@ -31,6 +37,13 @@
       "orgMembers": 4,
       "maintainers": 1,
       "externalContributors": 65
+    },
+    "contributorReadiness": {
+      "reposWithGoodFirstIssueLabel": 0,
+      "reposWithOpenGoodFirstIssues": 0,
+      "openGoodFirstIssues": 0,
+      "reposWithContributingGuide": 0,
+      "reposWithoutContributingGuide": 0
     }
   },
   "analysis": {
@@ -65,6 +78,11 @@
       "repeatContributors": 17,
       "averageHoursToFirstReview": 55.04,
       "averageHoursToMerge": 126.6
+    },
+    "contributorReadiness": {
+      "repos": [],
+      "topGoodFirstIssueRepos": [],
+      "reposMissingContributingGuide": []
     }
   }
 }
