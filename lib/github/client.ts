@@ -1,4 +1,4 @@
-import { setTimeout as sleep } from "node:timers/promises";
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 type RequestOptions = {
   path: string;

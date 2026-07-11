@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { analyzeOrganization } from "@/lib/github/analyze-org";
 import type { AnalyzeOrgResponse } from "@/lib/github/types";
 
 const REPO_URL = "https://github.com/jamiechicago312/oss-dashboard";
@@ -103,6 +104,43 @@ export function DashboardShell() {
   const [result, setResult] = useState<AnalyzeOrgResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [liveTarget, setLiveTarget] = useState("");
+  const [liveTokens, setLiveTokens] = useState<string[]>(["", "", "", ""]);
+
+  function setLiveTokenAt(index: 0 | 1 | 2 | 3, value: string) {
+    setLiveTokens((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  }
+
+  async function runLiveAnalysis(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmedTarget = liveTarget.trim();
+    if (!trimmedTarget) {
+      setStatus("error");
+      setError("Enter a GitHub organization slug or owner/repo to run a live analysis.");
+      return;
+    }
+
+    setStatus("loading");
+    setError(null);
+    setResult(null);
+
+    try {
+      const tokens = liveTokens.map((token) => token.trim()).filter(Boolean);
+      const response = await analyzeOrganization(trimmedTarget, tokens);
+      setResult(response);
+      setStatus("done");
+    } catch (submissionError) {
+      setStatus("error");
+      setError(submissionError instanceof Error ? submissionError.message : "Unknown error.");
+    }
+  }
+
+  const liveTokensProvided = liveTokens.filter((token) => token.trim().length > 0).length;
 
   async function loadDemoTarget(targetId: (typeof DEMO_TARGETS)[number]["id"]) {
     const selectedTarget = DEMO_TARGETS.find((target) => target.id === targetId);
@@ -220,8 +258,10 @@ export function DashboardShell() {
         <div className="hero__badge">OSS due diligence</div>
         <h1>Ride the perimeter before you commit to the ranch.</h1>
         <p>
-          Inspect three fixed GitHub snapshots prepared for demo review. Each button loads a
-          committed local JSON snapshot so the deployed demo stays fast and deterministic.
+          Browse four fixed GitHub snapshots prepared for demo review, or run a live analysis
+          against any public organization or repository using up to four of your own GitHub
+          tokens. Demo snapshots load instantly from committed JSON; live analysis runs entirely
+          in your browser and uses your tokens, not ours.
         </p>
 
         <div className="target-picker">
@@ -242,6 +282,60 @@ export function DashboardShell() {
             ))}
           </div>
         </div>
+
+        <details className="live-mode">
+          <summary>
+            <span>Or run a live analysis with your own GitHub token</span>
+            <span className="live-mode__hint">
+              Up to 4 tokens · runs in your browser
+            </span>
+          </summary>
+          <form onSubmit={runLiveAnalysis} className="live-mode__form">
+            <p className="live-mode__description">
+              Paste up to four GitHub personal access tokens below (leave any blank to skip it).
+              Each token rotates through parallel requests to spread load. Tokens are sent only to
+              <code> api.github.com </code>
+              from your browser &mdash; they are never sent to this site&apos;s server.
+            </p>
+
+            <div className="live-mode__grid">
+              {liveTokens.map((token, index) => (
+                <label key={index} className="live-mode__field">
+                  <span>GitHub token {index + 1}</span>
+                  <input
+                    type="password"
+                    inputMode="text"
+                    autoComplete="off"
+                    spellCheck={false}
+                    placeholder={index === 0 ? "ghp_…" : "optional"}
+                    value={token}
+                    onChange={(event) => setLiveTokenAt(index as 0 | 1 | 2 | 3, event.target.value)}
+                  />
+                </label>
+              ))}
+            </div>
+
+            <label className="live-mode__field live-mode__field--target">
+              <span>GitHub org or repo</span>
+              <input
+                name="live-target"
+                value={liveTarget}
+                onChange={(event) => setLiveTarget(event.target.value)}
+                placeholder="nodejs or nodejs/node"
+                autoComplete="off"
+              />
+            </label>
+
+            <div className="live-mode__actions">
+              <button type="submit">Run live analysis</button>
+              <span className="live-mode__token-count">
+                {liveTokensProvided === 0
+                  ? "No tokens pasted — requests will use GitHub's unauthenticated limit (60/hr)."
+                  : `${liveTokensProvided} token${liveTokensProvided === 1 ? "" : "s"} ready.`}
+              </span>
+            </div>
+          </form>
+        </details>
 
         <div className="hero__notes">
           <span>Demo targets are fixed for this deployment.</span>

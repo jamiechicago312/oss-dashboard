@@ -58,7 +58,6 @@ export type AnalyzeOrgResponse = {
   };
   snapshot: {
     generatedAt: string;
-    orgDirectory: string;
     tokensUsed: number;
     notes: string[];
   };

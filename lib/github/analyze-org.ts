@@ -1,5 +1,3 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { GitHubClientPool } from "@/lib/github/client";
 import type {
   AnalyzeOrgResponse,
@@ -51,7 +49,6 @@ type CommunityProfile = {
 };
 
 const ANALYSIS_WINDOW_DAYS = 90;
-const DATA_ROOT = path.join(process.cwd(), "data");
 
 type AnalysisTarget =
   | {
@@ -59,14 +56,12 @@ type AnalysisTarget =
       owner: string;
       repo: null;
       slug: string;
-      directory: string;
     }
   | {
       kind: "repo";
       owner: string;
       repo: string;
       slug: string;
-      directory: string;
     };
 
 function isRateLimitError(error: unknown) {
@@ -98,10 +93,6 @@ async function runStage<T>(
     );
     return fallback;
   }
-}
-
-function slugifyTimestamp(date: Date) {
-  return date.toISOString().replaceAll(":", "-");
 }
 
 function chunk<T>(items: T[], size: number) {
@@ -198,7 +189,6 @@ function parseTarget(input: string): AnalysisTarget {
       owner,
       repo: null,
       slug: owner,
-      directory: path.join(DATA_ROOT, "orgs", owner.toLowerCase()),
     };
   }
 
@@ -209,20 +199,10 @@ function parseTarget(input: string): AnalysisTarget {
       owner,
       repo,
       slug: `${owner}/${repo}`,
-      directory: path.join(DATA_ROOT, "repos", owner.toLowerCase(), repo.toLowerCase()),
     };
   }
 
   throw new Error('Enter either an organization slug like "nodejs" or a repository like "nodejs/node".');
-}
-
-async function loadLatestSnapshot(directory: string) {
-  try {
-    const snapshot = await readFile(path.join(directory, "latest.json"), "utf8");
-    return JSON.parse(snapshot) as AnalyzeOrgResponse;
-  } catch {
-    return null;
-  }
 }
 
 async function fetchOrgRepos(client: GitHubClientPool, org: string) {
@@ -395,12 +375,13 @@ async function fetchPullRequestReviews(
   });
 }
 
-export async function analyzeOrganization(input: string): Promise<AnalyzeOrgResponse> {
+export async function analyzeOrganization(
+  input: string,
+  tokens: string[] = [],
+): Promise<AnalyzeOrgResponse> {
   const target = parseTarget(input);
-  const tokens = [1, 2, 3, 4]
-    .map((index) => process.env[`GITHUB_TOKEN_${index}`])
-    .filter((token): token is string => Boolean(token));
-  const client = new GitHubClientPool(tokens);
+  const sanitizedTokens = tokens.map((token) => token.trim()).filter(Boolean);
+  const client = new GitHubClientPool(sanitizedTokens);
   const generatedAt = new Date();
   const cutoffDate = new Date(generatedAt);
   cutoffDate.setDate(cutoffDate.getDate() - ANALYSIS_WINDOW_DAYS);
@@ -639,8 +620,6 @@ export async function analyzeOrganization(input: string): Promise<AnalyzeOrgResp
       .map((repo) => repo.repo)
       .sort((left, right) => left.localeCompare(right));
 
-    await mkdir(target.directory, { recursive: true });
-
     const response: AnalyzeOrgResponse = {
       target: {
         kind: target.kind,
@@ -655,7 +634,6 @@ export async function analyzeOrganization(input: string): Promise<AnalyzeOrgResp
       },
       snapshot: {
         generatedAt: generatedAt.toISOString(),
-        orgDirectory: target.directory,
         tokensUsed: Math.max(client.tokenCount, 1),
         notes,
       },
@@ -730,38 +708,8 @@ export async function analyzeOrganization(input: string): Promise<AnalyzeOrgResp
       },
     };
 
-    const timestampSlug = slugifyTimestamp(generatedAt);
-    const snapshotPayload = {
-      ...response,
-      raw: {
-        repos,
-        publicMembers,
-        repoContributors: repoContributorLists,
-        repoPullCounts,
-        recentPullRequests: repoRecentPulls as RepoRecentPullRequests[],
-        pullRequestReviews: reviewsByPull,
-        repoReadiness,
-      },
-    };
-
-    await writeFile(
-      path.join(target.directory, `${timestampSlug}.json`),
-      `${JSON.stringify(snapshotPayload, null, 2)}\n`,
-      "utf8",
-    );
-    await writeFile(
-      path.join(target.directory, "latest.json"),
-      `${JSON.stringify(snapshotPayload, null, 2)}\n`,
-      "utf8",
-    );
-
     return response;
   } catch (error) {
-    const fallback = await loadLatestSnapshot(target.directory);
-    if (fallback) {
-      return fallback;
-    }
-
     throw error;
   }
 }
