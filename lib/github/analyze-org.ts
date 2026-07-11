@@ -407,24 +407,6 @@ export async function analyzeOrganization(
         : [];
     const observedOrgMembers = new Set(publicMembers.map((member) => member.login.toLowerCase()));
 
-    const repoContributorLists = await runStage(
-      "Contributor collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), (repo) =>
-          fetchRepoContributors(client, target.owner, repo.name),
-        ),
-      repos.map(() => [] as RepoContributor[]),
-      runtimeNotes,
-    );
-    const repoPullCounts = await runStage(
-      "PR total collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), (repo) =>
-          fetchRepoPullRequestCounts(client, target.owner, repo.name),
-        ),
-      repos.map(() => ({ opened: 0, merged: 0, closed: 0 })),
-      runtimeNotes,
-    );
     const repoRecentPulls = await runStage(
       "Recent PR collection",
       () =>
@@ -435,10 +417,37 @@ export async function analyzeOrganization(
       repos.map((repo) => ({ repo, pulls: [] as PullRequestSummary[] })),
       runtimeNotes,
     );
+
+    const activeRepos = repos.filter(
+      (repo) =>
+        !repo.archived &&
+        repoRecentPulls.some(
+          (entry) => entry.repo.name === repo.name && entry.pulls.length > 0,
+        ),
+    );
+
+    const repoContributorLists = await runStage(
+      "Contributor collection",
+      () =>
+        mapWithConcurrency(activeRepos, Math.max(client.tokenCount, 1), (repo) =>
+          fetchRepoContributors(client, target.owner, repo.name),
+        ),
+      activeRepos.map(() => [] as RepoContributor[]),
+      runtimeNotes,
+    );
+    const repoPullCounts = await runStage(
+      "PR total collection",
+      () =>
+        mapWithConcurrency(activeRepos, Math.max(client.tokenCount, 1), (repo) =>
+          fetchRepoPullRequestCounts(client, target.owner, repo.name),
+        ),
+      activeRepos.map(() => ({ opened: 0, merged: 0, closed: 0 })),
+      runtimeNotes,
+    );
     const repoReadiness = await runStage(
       "Contributor readiness collection",
       () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), async (repo) => {
+        mapWithConcurrency(activeRepos, Math.max(client.tokenCount, 1), async (repo) => {
           try {
             const [labels, communityProfile] = await Promise.all([
               fetchRepoLabels(client, target.owner, repo.name),
@@ -468,7 +477,7 @@ export async function analyzeOrganization(
             } satisfies RepoReadinessSummary;
           }
         }),
-      repos.map((repo) => ({
+      activeRepos.map((repo) => ({
         repo: repo.name,
         goodFirstIssueLabel: null,
         openGoodFirstIssues: 0,
@@ -495,11 +504,12 @@ export async function analyzeOrganization(
     );
 
     const externalPulls = recentPulls.filter((pull) => isExternalAssociation(pull.author_association));
+    const reviewableExternalPulls = externalPulls.filter((pull) => Boolean(pull.merged_at));
     const reviewsByPull = await runStage(
       "PR review collection",
       () =>
         mapWithConcurrency(
-          externalPulls,
+          reviewableExternalPulls,
           Math.max(client.tokenCount, 1),
           async (pull) => ({
             repo: pull.repo,
