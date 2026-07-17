@@ -8,6 +8,10 @@ export type OrgRepo = {
   forks_count: number;
   open_issues_count: number;
   default_branch: string;
+  owner: {
+    login: string;
+    type: "Organization" | "User";
+  };
 };
 
 export type PullRequestSummary = {
@@ -42,23 +46,28 @@ export type RepoReadinessSummary = {
   openGoodFirstIssues: number;
   hasContributingGuide: boolean;
   contributingGuidePath: string | null;
+  hasMaintainerGuide: boolean;
+  maintainerGuidePath: string | null;
 };
 
-export type AnalyzeOrgResponse = {
+export type AnalyzeRepoResponse = {
   target: {
-    kind: "org" | "repo";
     owner: string;
-    repo: string | null;
+    repo: string;
     slug: string;
   };
-  org: {
-    login: string;
-    publicRepos: number;
-    archivedRepos: number;
+  repository: {
+    name: string;
+    fullName: string;
+    htmlUrl: string;
+    defaultBranch: string;
+    archived: boolean;
+    ownerType: "Organization" | "User";
   };
   snapshot: {
     generatedAt: string;
-    orgDirectory: string;
+    cacheHit: boolean;
+    baseSnapshotGeneratedAt: string | null;
     tokensUsed: number;
     notes: string[];
   };
@@ -66,24 +75,29 @@ export type AnalyzeOrgResponse = {
     vanity: {
       stars: number;
       forks: number;
+      orgMembers: number;
+      contributors: number;
     };
-    pullRequestTotals: {
+    pullRequests: {
+      totalLast90Days: number;
       opened: number;
       merged: number;
       closed: number;
     };
-    people: {
-      uniqueRepoContributors: number;
-      orgMembers: number;
+    contributorExperience: {
       maintainers: number;
       externalContributors: number;
+      repeatContributors: number;
+      averageHoursToFirstReview: number | null;
+      averageHoursToMerge: number | null;
     };
-    contributorReadiness: {
-      reposWithGoodFirstIssueLabel: number;
-      reposWithOpenGoodFirstIssues: number;
+    contributorOnRamp: {
+      hasContributingGuide: boolean;
+      contributingGuidePath: string | null;
+      hasMaintainerGuide: boolean;
+      maintainerGuidePath: string | null;
+      goodFirstIssueLabel: string | null;
       openGoodFirstIssues: number;
-      reposWithContributingGuide: number;
-      reposWithoutContributingGuide: number;
     };
   };
   analysis: {
@@ -92,26 +106,13 @@ export type AnalyzeOrgResponse = {
       end: string;
       label: string;
     };
-    pullRequests: {
-      total: number;
-      byActor: Record<
-        "external" | "maintainer" | "orgMember" | "unknown",
-        {
-          count: number;
-          percent: number;
-        }
-      >;
-    };
-    externalContributors: {
-      uniqueContributors: number;
-      repeatContributors: number;
-      averageHoursToFirstReview: number | null;
-      averageHoursToMerge: number | null;
-    };
-    contributorReadiness: {
-      repos: RepoReadinessSummary[];
-      topGoodFirstIssueRepos: RepoReadinessSummary[];
-      reposMissingContributingGuide: string[];
+    cache: {
+      reusedPullRequests: number;
+      refreshedPullRequests: number;
+      reusedReviews: number;
+      refreshedReviews: number;
     };
   };
 };
+
+export type AnalyzeOrgResponse = AnalyzeRepoResponse;

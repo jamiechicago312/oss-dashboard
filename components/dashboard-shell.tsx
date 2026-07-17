@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import type { AnalyzeOrgResponse } from "@/lib/github/types";
+import { FormEvent, useState } from "react";
+import type { AnalyzeRepoResponse } from "@/lib/github/types";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -70,7 +70,7 @@ function MetricTable({
 
 export function DashboardShell() {
   const [target, setTarget] = useState("");
-  const [result, setResult] = useState<AnalyzeOrgResponse | null>(null);
+  const [result, setResult] = useState<AnalyzeRepoResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -79,7 +79,7 @@ export function DashboardShell() {
 
     const trimmedTarget = target.trim();
     if (!trimmedTarget) {
-      setError("Enter a GitHub organization slug or owner/repo.");
+      setError('Enter a GitHub repository in "owner/repo" format.');
       return;
     }
 
@@ -96,12 +96,12 @@ export function DashboardShell() {
         body: JSON.stringify({ target: trimmedTarget }),
       });
 
-      const payload = (await response.json()) as AnalyzeOrgResponse | { error: string };
+      const payload = (await response.json()) as AnalyzeRepoResponse | { error: string };
       if (!response.ok) {
-        throw new Error("error" in payload ? payload.error : "Failed to analyze organization.");
+        throw new Error("error" in payload ? payload.error : "Failed to analyze repository.");
       }
 
-      setResult(payload as AnalyzeOrgResponse);
+      setResult(payload as AnalyzeRepoResponse);
       setStatus("done");
     } catch (submissionError) {
       setStatus("error");
@@ -109,87 +109,35 @@ export function DashboardShell() {
     }
   }
 
-  const actorRows = useMemo(() => {
-    if (!result) {
-      return [];
-    }
-
-    return [
-      {
-        label: "External contributor PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.external.count)} (${result.analysis.pullRequests.byActor.external.percent}%)`,
-      },
-      {
-        label: "Maintainer PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.maintainer.count)} (${result.analysis.pullRequests.byActor.maintainer.percent}%)`,
-      },
-      {
-        label: "Org member PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.orgMember.count)} (${result.analysis.pullRequests.byActor.orgMember.percent}%)`,
-      },
-      {
-        label: "Unknown PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.unknown.count)} (${result.analysis.pullRequests.byActor.unknown.percent}%)`,
-      },
-    ];
-  }, [result]);
-
-  const contributorReadinessRows = useMemo(() => {
-    if (!result) {
-      return [];
-    }
-
-    return result.analysis.contributorReadiness.topGoodFirstIssueRepos.map((repo) => ({
-      label: repo.repo,
-      value: formatNumber(repo.openGoodFirstIssues),
-      note: repo.hasContributingGuide
-        ? `Contributing guide: ${repo.contributingGuidePath ?? "detected"}`
-        : "No standard contributing guide detected.",
-    }));
-  }, [result]);
-
-  const missingGuidePreview = useMemo(() => {
-    if (!result) {
-      return "None";
-    }
-
-    const missing = result.analysis.contributorReadiness.reposMissingContributingGuide.slice(0, 6);
-    if (missing.length === 0) {
-      return "None";
-    }
-
-    return missing.join(", ");
-  }, [result]);
-
   return (
     <main className="page-shell">
       <section className="hero panel">
-        <div className="hero__badge">OSS due diligence</div>
-        <h1>Ride the perimeter before you commit to the ranch.</h1>
+        <div className="hero__badge">OSS repo diligence</div>
+        <h1>Evaluate one repo, not an entire org.</h1>
         <p>
-          Pull a full public-org snapshot from GitHub, save it as JSON locally, and inspect
-          contribution health across every public repository in that organization or drill into a
-          single repository.
+          Pull a server-side GitHub analysis for a single repository, rotate between two Vercel
+          GitHub tokens, and persist each snapshot to Neon so later refreshes can reuse cached PR
+          history instead of re-downloading the whole 90-day window.
         </p>
 
         <form onSubmit={onSubmit} className="search-form">
-          <label htmlFor="target">GitHub org or repo</label>
+          <label htmlFor="target">GitHub repository</label>
           <div className="search-form__row">
             <input
               id="target"
               name="target"
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              placeholder="nodejs or nodejs/node"
+              placeholder="owner/repo"
               autoComplete="off"
             />
-            <button type="submit">Go</button>
+            <button type="submit">Analyze</button>
           </div>
         </form>
 
         <div className="hero__notes">
-          <span>Uses `GITHUB_TOKEN_1..4` when available.</span>
-          <span>Saves snapshots to `data/orgs/&lt;org&gt;`.</span>
+          <span>Uses `GITHUB_TOKEN_1` and `GITHUB_TOKEN_2` on the server.</span>
+          <span>Writes snapshot backups to Neon when `DATABASE_URL` is configured.</span>
         </div>
       </section>
 
@@ -200,10 +148,9 @@ export function DashboardShell() {
             <div className="spinner spinner--middle" />
             <div className="spinner spinner--inner" />
           </div>
-          <h2>Surveying the territory</h2>
+          <h2>Refreshing repository snapshot</h2>
           <p>
-            Pulling repos, contributors, PR totals, contributor-onramp signals, and 90-day review
-            latency metrics.
+            Pulling repo metadata, contributor signals, and the last 90 days of PR activity.
           </p>
         </section>
       ) : null}
@@ -226,110 +173,80 @@ export function DashboardShell() {
                 </p>
               </div>
               <div className="eyebrow-list">
-                <span>
-                  {formatNumber(result.org.publicRepos)}{" "}
-                  {result.target.kind === "repo" ? "repo analyzed" : "public repos"}
-                </span>
-                <span>{formatNumber(result.org.archivedRepos)} archived repos</span>
-                <span>{formatNumber(result.snapshot.tokensUsed)} GitHub tokens in rotation</span>
+                <span>{result.repository.defaultBranch} default branch</span>
+                <span>{formatNumber(result.snapshot.tokensUsed)} tokens in rotation</span>
+                <span>{result.snapshot.cacheHit ? "Cache warm" : "First cached run"}</span>
               </div>
             </div>
 
             <div className="stat-grid">
+              <StatCard label="Stars" value={formatNumber(result.metrics.vanity.stars)} tone="blue" />
+              <StatCard label="Forks" value={formatNumber(result.metrics.vanity.forks)} tone="brown" />
               <StatCard
-                label="Stars"
-                value={formatNumber(result.metrics.vanity.stars)}
-                tone="blue"
-              />
-              <StatCard
-                label="Forks"
-                value={formatNumber(result.metrics.vanity.forks)}
-                tone="brown"
-              />
-              <StatCard
-                label="Repo contributors"
-                value={formatNumber(result.metrics.people.uniqueRepoContributors)}
+                label="Contributors"
+                value={formatNumber(result.metrics.vanity.contributors)}
                 tone="green"
-                note="Unique commit contributors across repos"
+                note="Unique repo contributors from the contributors endpoint"
               />
               <StatCard
                 label="Org members"
-                value={formatNumber(result.metrics.people.orgMembers)}
+                value={formatNumber(result.metrics.vanity.orgMembers)}
                 tone="red"
                 note={
-                  result.target.kind === "repo"
-                    ? "Observed MEMBER or OWNER PR authors"
-                    : "Public plus observed MEMBER or OWNER PR authors"
+                  result.repository.ownerType === "Organization"
+                    ? "Public org members plus observed MEMBER or OWNER PR authors"
+                    : "User-owned repo: only observed OWNER associations are available"
                 }
               />
             </div>
           </section>
 
           <MetricTable
-            title="PR Totals"
+            title="PR Activity"
             rows={[
               {
-                label: "Opened",
-                value: formatNumber(result.metrics.pullRequestTotals.opened),
+                label: "Last 90 days",
+                value: formatNumber(result.metrics.pullRequests.totalLast90Days),
               },
               {
-                label: "Merged",
-                value: formatNumber(result.metrics.pullRequestTotals.merged),
+                label: "All-time opened",
+                value: formatNumber(result.metrics.pullRequests.opened),
               },
               {
-                label: "Closed",
-                value: formatNumber(result.metrics.pullRequestTotals.closed),
+                label: "All-time merged",
+                value: formatNumber(result.metrics.pullRequests.merged),
               },
               {
-                label: "Analyzed window",
-                value: result.analysis.window.label,
-                note: "Recent PR analysis operates over the last 90 days.",
+                label: "All-time closed",
+                value: formatNumber(result.metrics.pullRequests.closed),
               },
             ]}
           />
-
-          <MetricTable title="Actor Mix" rows={actorRows} />
 
           <MetricTable
             title="Contributor Experience"
             rows={[
               {
                 label: "Average time to first review",
-                value: formatDuration(result.analysis.externalContributors.averageHoursToFirstReview),
+                value: formatDuration(result.metrics.contributorExperience.averageHoursToFirstReview),
               },
               {
                 label: "Average time to merge",
-                value: formatDuration(result.analysis.externalContributors.averageHoursToMerge),
+                value: formatDuration(result.metrics.contributorExperience.averageHoursToMerge),
               },
               {
                 label: "Repeat contributors",
-                value: formatNumber(result.analysis.externalContributors.repeatContributors),
+                value: formatNumber(result.metrics.contributorExperience.repeatContributors),
                 note: "External contributors with more than one PR in the 90-day window.",
               },
               {
-                label: "Unique contributors",
-                value: formatNumber(result.analysis.externalContributors.uniqueContributors),
-              },
-            ]}
-          />
-
-          <MetricTable
-            title="Role Coverage"
-            rows={[
-              {
                 label: "Maintainers",
-                value: formatNumber(result.metrics.people.maintainers),
-                note: "Approximation based on public PR/review associations.",
+                value: formatNumber(result.metrics.contributorExperience.maintainers),
+                note: "Inferred from public PR author associations.",
               },
               {
                 label: "External contributors",
-                value: formatNumber(result.metrics.people.externalContributors),
-                note: "Maintainers and public org members removed from this set.",
-              },
-              {
-                label: "Repos with contributing guides",
-                value: formatNumber(result.metrics.contributorReadiness.reposWithContributingGuide),
-                note: "Detected through GitHub community profile data.",
+                value: formatNumber(result.metrics.contributorExperience.externalContributors),
               },
             ]}
           />
@@ -338,49 +255,59 @@ export function DashboardShell() {
             title="Contributor Onramp"
             rows={[
               {
+                label: "Contributing guide",
+                value: result.metrics.contributorOnRamp.hasContributingGuide ? "Yes" : "No",
+                note:
+                  result.metrics.contributorOnRamp.contributingGuidePath ??
+                  "No standard contributing guide detected.",
+              },
+              {
+                label: "Maintainer guide",
+                value: result.metrics.contributorOnRamp.hasMaintainerGuide ? "Yes" : "No",
+                note:
+                  result.metrics.contributorOnRamp.maintainerGuidePath ??
+                  "No maintainer markdown file detected.",
+              },
+              {
+                label: "Good first issue label",
+                value: result.metrics.contributorOnRamp.goodFirstIssueLabel ?? "Not found",
+              },
+              {
                 label: "Open good first issues",
-                value: formatNumber(result.metrics.contributorReadiness.openGoodFirstIssues),
-              },
-              {
-                label: "Repos with good first issue labels",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithGoodFirstIssueLabel,
-                ),
-              },
-              {
-                label: "Repos with open good first issues",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithOpenGoodFirstIssues,
-                ),
-              },
-              {
-                label: "Repos missing contributing guides",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithoutContributingGuide,
-                ),
-                note: missingGuidePreview,
+                value: formatNumber(result.metrics.contributorOnRamp.openGoodFirstIssues),
               },
             ]}
           />
 
           <MetricTable
-            title="Top Good First Issue Repos"
-            rows={
-              contributorReadinessRows.length > 0
-                ? contributorReadinessRows
-                : [
-                    {
-                      label: "No open good first issues found",
-                      value: "0",
-                      note: "Either no matching label exists or no open issues currently use it.",
-                    },
-                  ]
-            }
+            title="Cache Reuse"
+            rows={[
+              {
+                label: "Reused PR records",
+                value: formatNumber(result.analysis.cache.reusedPullRequests),
+              },
+              {
+                label: "Refreshed PR records",
+                value: formatNumber(result.analysis.cache.refreshedPullRequests),
+              },
+              {
+                label: "Reused review records",
+                value: formatNumber(result.analysis.cache.reusedReviews),
+              },
+              {
+                label: "Refreshed review records",
+                value: formatNumber(result.analysis.cache.refreshedReviews),
+                note:
+                  result.snapshot.baseSnapshotGeneratedAt
+                    ? `Base snapshot ${new Date(result.snapshot.baseSnapshotGeneratedAt).toLocaleString("en-US")}`
+                    : "No prior snapshot existed.",
+              },
+            ]}
           />
 
           <section className="panel panel--wide">
             <div className="panel__header">
-              <h2>Snapshot caveats</h2>
+              <h2>Snapshot notes</h2>
             </div>
             <ul className="caveat-list">
               {result.snapshot.notes.map((note) => (

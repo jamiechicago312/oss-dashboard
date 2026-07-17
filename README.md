@@ -1,52 +1,61 @@
 # OSS Dashboard
 
-Local Next.js dashboard for evaluating whether a GitHub organization or single repository looks
-healthy enough to contribute to.
+Next.js dashboard for evaluating one GitHub repository at a time.
 
-## What it does
+## Product direction
 
-- Pulls either every public repo in a GitHub organization or a single target repository.
-- Aggregates vanity metrics like stars and forks.
-- Computes org-wide PR totals across all public repos.
-- Analyzes the last 90 days of PRs to estimate actor mix:
-  external contributors, maintainers, and org members.
-- Measures contributor experience:
-  average time to first review, average time to merge, and repeat contributor count.
-- Counts open `good first issue` issues across the org and shows which repos currently expose them.
-- Detects whether repos publish a standard contributing guide through GitHub's community profile.
-- Stores snapshots as committed JSON under `data/orgs/<org>/`.
+- Repo-only analysis. Org-wide scans are intentionally out.
+- Server-side GitHub access using exactly two env-var tokens.
+- Neon-backed snapshot storage on every query.
+- Incremental reuse of cached PR and review history so refreshes do not need to pull the full 90-day window every time.
 
-## What it does not pretend to know
+## What it tracks
 
-- Exact collaborator permission breakdowns like read-only, triage-only, and write across arbitrary
-  public repositories are not fully public. The dashboard labels those counts as approximations
-  when they are derived from PR author association.
-- Org member counts combine public membership visibility with users observed as `MEMBER` or
-  `OWNER` on recent PRs. That is useful, but not perfect.
-- Contribution guide detection follows GitHub's standard community profile signals, so unusual file
-  locations may not be recognized.
+- Vanity metrics: stars, forks, org members, contributor count
+- PR activity: all-time opened, merged, closed, plus the last 90 days
+- Contributor experience: time to first review, time to merge, repeat contributor count, maintainer count
+- Contributor on-ramp: contributing guide, maintainer guide, good first issue label, open good first issues
 
-## Setup
+## What it does not track anymore
 
-1. Copy `.env.example` to `.env`.
-2. Add up to four GitHub API tokens:
-   `GITHUB_TOKEN_1`, `GITHUB_TOKEN_2`, `GITHUB_TOKEN_3`, `GITHUB_TOKEN_4`.
-   Tokens from the same GitHub user do not create a separate primary rate-limit budget, so for
-   very large orgs you need either fewer API calls, tokens from different users, or a GitHub App
-   installation token strategy.
-3. Install dependencies:
+- Org-wide analysis
+- Actor mix
+- Role coverage section
+- Top good first issue repos
+
+## Environment
+
+Copy `.env.example` to `.env.local` and set:
+
+```bash
+GITHUB_TOKEN_1=
+GITHUB_TOKEN_2=
+DATABASE_URL=
+```
+
+Notes:
+
+- `GITHUB_TOKEN_1` and `GITHUB_TOKEN_2` should come from different GitHub accounts if you want separate primary rate-limit budgets.
+- `DATABASE_URL` should point to your Neon Postgres database.
+- If `DATABASE_URL` is missing, the app still runs but skips snapshot persistence and incremental cache reuse.
+
+## Local development
 
 ```bash
 npm install
-```
-
-4. Start the local app:
-
-```bash
 npm run dev
 ```
 
-5. Open [http://127.0.0.1:3000](http://127.0.0.1:3000)
+Open `http://127.0.0.1:3000` and query a repository in `owner/repo` format.
+
+## Storage model
+
+Each request writes a row into `repo_snapshots` with:
+
+- the summary payload returned to the UI
+- raw PR, review, contributor, and on-ramp data used to build that payload
+
+On the next request for the same repo, the app loads the most recent snapshot from Neon and reuses cached PR/review history where possible before fetching only the latest changes from GitHub.
 
 ## Scripts
 
@@ -54,16 +63,3 @@ npm run dev
 - `npm run build`
 - `npm run lint`
 - `npm run typecheck`
-
-## Snapshot output
-
-Each analysis writes two files:
-
-- `data/orgs/<org>/<timestamp>.json` for org scans
-- `data/repos/<owner>/<repo>/<timestamp>.json` for repo scans
-
-A `latest.json` file is also written alongside each target and used as a fallback if a later live
-refresh hits GitHub rate limits.
-
-The JSON includes both summary metrics used by the UI and the raw fetched payloads needed for
-inspection or future reprocessing.
