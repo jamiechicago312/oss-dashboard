@@ -209,24 +209,18 @@ export function DashboardShell() {
         </p>
 
         <form onSubmit={onSubmit} className="search-form">
-          <label htmlFor="target">GitHub repository</label>
           <div className="search-form__row">
             <input
               id="target"
               name="target"
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              placeholder="owner/repo"
+              placeholder="jamiechicago312/oss-dashboard"
               autoComplete="off"
             />
             <button type="submit">Analyze</button>
           </div>
         </form>
-
-        <div className="hero__notes">
-          <span>Uses `GITHUB_TOKEN_1` and `GITHUB_TOKEN_2` on the server.</span>
-          <span>Writes snapshot backups to Neon when `DATABASE_URL` is configured.</span>
-        </div>
       </section>
 
       {showingStaleResult && result ? (
