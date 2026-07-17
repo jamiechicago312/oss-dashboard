@@ -1,15 +1,14 @@
 :root {
-  --sand-1: #f4ead7;
-  --sand-2: #e3d1b0;
-  --sand-3: #c79e6a;
-  --leather: #7d4e2d;
-  --canyon: #a6402a;
-  --sage: #486148;
-  --midnight: #17324d;
-  --ink: #1a1a1a;
-  --cream: #fff9ef;
-  --line: rgba(23, 50, 77, 0.16);
-  --shadow: rgba(26, 26, 26, 0.12);
+  --page-bg: #0a0f0c;
+  --panel-bg: rgba(15, 19, 17, 0.85);
+  --panel-bg-strong: rgba(19, 24, 21, 0.85);
+  --panel-bg-soft: rgba(29, 37, 33, 0.85);
+  --green: #67b67b;
+  --green-soft: #8fd7a1;
+  --white: #f5f7f6;
+  --muted: rgba(229, 236, 232, 0.78);
+  --line: rgba(255, 255, 255, 0.1);
+  --shadow: rgba(0, 0, 0, 0.45);
 }
 
 * {
@@ -23,10 +22,15 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  color: var(--ink);
-  background:
-    radial-gradient(circle at top, rgba(244, 234, 215, 0.95), rgba(244, 234, 215, 0.6) 30%, transparent 60%),
-    linear-gradient(180deg, #a8c3d9 0%, #d8e5ec 24%, #e8d7bc 24%, #c99563 58%, #9a5b3a 100%);
+  color: var(--white);
+  background-color: var(--page-bg);
+  background-image:
+    linear-gradient(rgba(6, 9, 8, 0.52), rgba(6, 9, 8, 0.52)),
+    url("../components/oss-dashboard-background.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   font-family: Georgia, "Times New Roman", serif;
 }
 
@@ -48,9 +52,9 @@ input {
 .panel {
   border: 1px solid var(--line);
   border-radius: 24px;
-  background: rgba(255, 249, 239, 0.86);
+  background: var(--panel-bg);
   box-shadow: 0 24px 50px var(--shadow);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
 }
 
 .panel--wide {
@@ -70,15 +74,17 @@ input {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(166, 64, 42, 0.2), transparent 65%);
+  background: rgba(103, 182, 123, 0.08);
+  filter: blur(30px);
 }
 
 .hero__badge {
   display: inline-flex;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  background: rgba(72, 97, 72, 0.14);
-  color: var(--sage);
+  border: 1px solid rgba(103, 182, 123, 0.22);
+  background: rgba(103, 182, 123, 0.12);
+  color: var(--green-soft);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.75rem;
@@ -89,23 +95,25 @@ input {
   max-width: 12ch;
   font-size: clamp(2.7rem, 8vw, 5.5rem);
   line-height: 0.95;
-  color: var(--midnight);
+  color: var(--white);
 }
 
 .hero__subtitle {
   margin: 0 0 1rem;
   font-size: clamp(1.15rem, 3vw, 1.75rem);
   font-weight: 500;
-  color: rgba(23, 50, 77, 0.85);
+  color: var(--green-soft);
 }
 
 .hero p {
   max-width: 62ch;
   font-size: 1.05rem;
   line-height: 1.65;
+  color: var(--muted);
 }
 
 .hero p a {
+  color: var(--white);
   text-decoration: underline;
   text-underline-offset: 0.14em;
 }
@@ -118,7 +126,7 @@ input {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: rgba(26, 26, 26, 0.7);
+  color: var(--muted);
 }
 
 .search-form__row {
@@ -130,17 +138,18 @@ input {
   flex: 1;
   min-width: 0;
   padding: 0.95rem 1rem;
-  border: 1px solid rgba(23, 50, 77, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(8, 11, 10, 0.72);
+  color: var(--white);
 }
 
 .search-form button {
   padding: 0.95rem 1.4rem;
-  border: 0;
+  border: 1px solid rgba(103, 182, 123, 0.3);
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--midnight), #31587d);
-  color: var(--cream);
+  background: rgba(103, 182, 123, 0.18);
+  color: var(--white);
   cursor: pointer;
 }
 
@@ -150,7 +159,7 @@ input {
   gap: 0.75rem 1rem;
   margin-top: 1rem;
   font-size: 0.85rem;
-  color: rgba(26, 26, 26, 0.65);
+  color: var(--muted);
 }
 
 .dashboard-grid {
@@ -171,12 +180,12 @@ input {
 .panel__header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: var(--midnight);
+  color: var(--white);
 }
 
 .panel__header p {
   margin: 0.35rem 0 0;
-  color: rgba(26, 26, 26, 0.7);
+  color: var(--muted);
 }
 
 .eyebrow-list {
@@ -189,10 +198,11 @@ input {
 .eyebrow-list span {
   display: inline-flex;
   padding: 0.45rem 0.7rem;
-  border: 1px solid rgba(23, 50, 77, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
   font-size: 0.8rem;
+  color: var(--muted);
 }
 
 .stat-grid {
@@ -204,36 +214,37 @@ input {
 .stat-card {
   padding: 1rem;
   border-radius: 18px;
-  border: 1px solid rgba(23, 50, 77, 0.08);
-  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--panel-bg-strong);
 }
 
 .stat-card p,
 .stat-card span {
   margin: 0;
-  color: rgba(26, 26, 26, 0.7);
+  color: var(--muted);
 }
 
 .stat-card h3 {
   margin: 0.45rem 0 0.25rem;
   font-size: 2rem;
-  color: var(--midnight);
+  color: var(--white);
 }
 
 .stat-card--blue {
-  background: linear-gradient(180deg, rgba(23, 50, 77, 0.1), rgba(255, 255, 255, 0.85));
+  background: rgba(18, 24, 22, 0.85);
 }
 
 .stat-card--red {
-  background: linear-gradient(180deg, rgba(166, 64, 42, 0.12), rgba(255, 255, 255, 0.85));
+  background: rgba(22, 28, 25, 0.85);
 }
 
 .stat-card--green {
-  background: linear-gradient(180deg, rgba(72, 97, 72, 0.12), rgba(255, 255, 255, 0.85));
+  background: rgba(17, 29, 21, 0.85);
+  border-color: rgba(103, 182, 123, 0.16);
 }
 
 .stat-card--brown {
-  background: linear-gradient(180deg, rgba(125, 78, 45, 0.14), rgba(255, 255, 255, 0.85));
+  background: rgba(23, 25, 24, 0.85);
 }
 
 .metric-table {
@@ -248,7 +259,7 @@ input {
   gap: 1rem;
   align-items: flex-start;
   padding-bottom: 0.85rem;
-  border-bottom: 1px dashed rgba(23, 50, 77, 0.14);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
 .metric-table__row:last-child {
@@ -259,13 +270,14 @@ input {
 .metric-table__row strong,
 .metric-table__row span {
   font-size: 1.05rem;
+  color: var(--white);
 }
 
 .metric-table__row p {
   margin: 0.25rem 0 0;
   max-width: 28ch;
   font-size: 0.84rem;
-  color: rgba(26, 26, 26, 0.68);
+  color: var(--muted);
 }
 
 .loading-panel,
@@ -284,7 +296,8 @@ input {
 }
 
 .stale-panel {
-  background: rgba(255, 248, 218, 0.9);
+  background: rgba(27, 40, 31, 0.85);
+  border-color: rgba(103, 182, 123, 0.18);
 }
 
 .progress-shell {
@@ -297,9 +310,9 @@ input {
   width: 100%;
   height: 14px;
   overflow: hidden;
-  border: 1px solid rgba(23, 50, 77, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .progress-bar {
@@ -307,7 +320,7 @@ input {
   inset: 1px auto 1px 1px;
   width: 38%;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--midnight), #31587d, var(--sage));
+  background: var(--green);
   animation: loading-slide 1.6s ease-in-out infinite;
 }
 
@@ -315,13 +328,14 @@ input {
   max-width: 56ch;
   margin: 0.75rem auto 0;
   font-size: 0.88rem;
-  color: rgba(26, 26, 26, 0.68);
+  color: var(--muted);
 }
 
 .caveat-list {
   margin: 0;
   padding-left: 1.1rem;
   line-height: 1.6;
+  color: var(--muted);
 }
 
 @keyframes loading-slide {
