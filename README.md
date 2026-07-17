@@ -57,6 +57,8 @@ Each request writes a row into `repo_snapshots` with:
 
 On the next request for the same repo, the app loads the most recent snapshot from Neon and reuses cached PR/review history where possible before fetching only the latest changes from GitHub.
 
+For setup details, see [docs/DB_GUIDE.md](docs/DB_GUIDE.md).
+
 ## Scripts
 
 - `npm run dev`
