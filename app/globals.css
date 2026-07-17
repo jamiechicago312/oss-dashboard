@@ -270,15 +270,21 @@ input {
 
 .loading-panel,
 .error-panel,
+.stale-panel,
 .dashboard-grid > .panel,
 .dashboard-grid > .panel--wide {
   padding: 1.4rem;
 }
 
 .loading-panel,
-.error-panel {
+.error-panel,
+.stale-panel {
   margin-top: 1rem;
   text-align: center;
+}
+
+.stale-panel {
+  background: rgba(255, 248, 218, 0.9);
 }
 
 .progress-shell {

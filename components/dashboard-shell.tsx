@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import type { AnalyzeRepoResponse } from "@/lib/github/types";
 
 const numberFormat = new Intl.NumberFormat("en-US");
@@ -73,6 +73,70 @@ export function DashboardShell() {
   const [result, setResult] = useState<AnalyzeRepoResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<"queued" | "running" | "completed" | "failed" | null>(
+    null,
+  );
+  const [showingStaleResult, setShowingStaleResult] = useState(false);
+  const pollIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!jobId || !jobStatus || jobStatus === "completed" || jobStatus === "failed") {
+      if (pollIntervalRef.current !== null) {
+        window.clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const currentJobId = jobId;
+
+    async function pollJob() {
+      const response = await fetch(`/api/analyze/status?jobId=${encodeURIComponent(currentJobId)}`, {
+        method: "GET",
+      });
+
+      const payload = (await response.json()) as {
+        job?: { id: string; status: "queued" | "running" | "completed" | "failed"; errorMessage?: string | null };
+        result?: AnalyzeRepoResponse | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to poll analysis job.");
+      }
+
+      if (!payload.job) {
+        throw new Error("Job status payload was missing.");
+      }
+
+      setJobStatus(payload.job.status);
+
+      if (payload.job.status === "completed" && payload.result) {
+        setResult(payload.result);
+        setShowingStaleResult(false);
+        setStatus("done");
+        setError(null);
+      }
+
+      if (payload.job.status === "failed") {
+        setStatus("error");
+        setError(payload.job.errorMessage ?? "Analysis refresh failed.");
+      }
+    }
+
+    void pollJob();
+    pollIntervalRef.current = window.setInterval(() => {
+      void pollJob();
+    }, 3000);
+
+    return () => {
+      if (pollIntervalRef.current !== null) {
+        window.clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [jobId, jobStatus]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,6 +150,9 @@ export function DashboardShell() {
     setStatus("loading");
     setError(null);
     setResult(null);
+    setJobId(null);
+    setJobStatus(null);
+    setShowingStaleResult(false);
 
     try {
       const response = await fetch("/api/analyze", {
@@ -96,13 +163,25 @@ export function DashboardShell() {
         body: JSON.stringify({ target: trimmedTarget }),
       });
 
-      const payload = (await response.json()) as AnalyzeRepoResponse | { error: string };
+      const payload = (await response.json()) as
+        | {
+            mode: "sync" | "async";
+            result: AnalyzeRepoResponse | null;
+            isStale: boolean;
+            job: { id: string; status: "queued" | "running" | "completed" | "failed" } | null;
+          }
+        | { error: string };
       if (!response.ok) {
         throw new Error("error" in payload ? payload.error : "Failed to analyze repository.");
       }
 
-      setResult(payload as AnalyzeRepoResponse);
-      setStatus("done");
+      if ("mode" in payload) {
+        setResult(payload.result);
+        setShowingStaleResult(payload.isStale);
+        setJobId(payload.job?.id ?? null);
+        setJobStatus(payload.job?.status ?? null);
+        setStatus(payload.result ? "done" : "loading");
+      }
     } catch (submissionError) {
       setStatus("error");
       setError(submissionError instanceof Error ? submissionError.message : "Unknown error.");
@@ -150,6 +229,17 @@ export function DashboardShell() {
         </div>
       </section>
 
+      {showingStaleResult && result ? (
+        <section className="panel stale-panel">
+          <h2>Showing cached snapshot while refresh runs</h2>
+          <p>
+            This result is from an older cached snapshot for <strong>{result.target.slug}</strong>.
+            A fresh analysis job is running now, and this page will update automatically when it
+            finishes.
+          </p>
+        </section>
+      ) : null}
+
       {status === "loading" ? (
         <section className="panel loading-panel">
           <div className="progress-shell" aria-hidden="true">
@@ -165,6 +255,7 @@ export function DashboardShell() {
             This is an indeterminate progress bar. The app cannot predict exact completion time
             because GitHub response volume varies by repository and cache state.
           </p>
+          {jobStatus ? <p className="loading-note">Current job status: {jobStatus}</p> : null}
         </section>
       ) : null}
 
