@@ -112,12 +112,21 @@ export function DashboardShell() {
   return (
     <main className="page-shell">
       <section className="hero panel">
-        <div className="hero__badge">OSS repo diligence</div>
-        <h1>Evaluate one repo, not an entire org.</h1>
+        <div className="hero__badge">OSS Dashboard</div>
+        <h1>Open Source Contributor Evaluation</h1>
+        <h2 className="hero__subtitle">Stop judging a project by stars</h2>
         <p>
-          Pull a server-side GitHub analysis for a single repository, rotate between two Vercel
-          GitHub tokens, and persist each snapshot to Neon so later refreshes can reuse cached PR
-          history instead of re-downloading the whole 90-day window.
+          Use this dashboard to help evaluate your future open source contributor experience for a
+          project. Keep in mind that your time is valuable, so let&apos;s make sure this project is
+          worth your time. If you&apos;d like to contribute to this project or fork it, check out the{" "}
+          <a
+            href="https://github.com/jamiechicago312/oss-dashboard"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub Repo
+          </a>
+          .
         </p>
 
         <form onSubmit={onSubmit} className="search-form">
@@ -143,14 +152,18 @@ export function DashboardShell() {
 
       {status === "loading" ? (
         <section className="panel loading-panel">
-          <div className="spinner-wrap" aria-hidden="true">
-            <div className="spinner spinner--outer" />
-            <div className="spinner spinner--middle" />
-            <div className="spinner spinner--inner" />
+          <div className="progress-shell" aria-hidden="true">
+            <div className="progress-track">
+              <div className="progress-bar" />
+            </div>
           </div>
           <h2>Refreshing repository snapshot</h2>
           <p>
             Pulling repo metadata, contributor signals, and the last 90 days of PR activity.
+          </p>
+          <p className="loading-note">
+            This is an indeterminate progress bar. The app cannot predict exact completion time
+            because GitHub response volume varies by repository and cache state.
           </p>
         </section>
       ) : null}
