@@ -119,6 +119,32 @@ input {
   text-underline-offset: 0.14em;
 }
 
+.hero__github-link {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  padding: 0.8rem 1.1rem;
+  border: 1px solid rgba(103, 182, 123, 0.42);
+  border-radius: 12px;
+  background: rgba(103, 182, 123, 0.16);
+  color: var(--white);
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 100ms ease;
+}
+
+.hero__github-link:hover {
+  border-color: rgba(143, 215, 161, 0.72);
+  background: rgba(103, 182, 123, 0.3);
+}
+
+.hero__github-link:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.hero__github-link:focus-visible {
+  outline: 3px solid rgba(143, 215, 161, 0.8);
+  outline-offset: 3px;
+}
+
 .search-form {
   position: relative;
   z-index: 1;
@@ -326,6 +352,8 @@ input {
 }
 
 .daily-cache-panel {
+  margin-top: 1rem;
+  padding: 1.75rem;
   background: rgba(27, 40, 31, 0.85);
   border-color: rgba(103, 182, 123, 0.32);
 }
