@@ -119,6 +119,32 @@ input {
   text-underline-offset: 0.14em;
 }
 
+.hero__github-link {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  padding: 0.8rem 1.1rem;
+  border: 1px solid rgba(103, 182, 123, 0.42);
+  border-radius: 12px;
+  background: rgba(103, 182, 123, 0.16);
+  color: var(--white);
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 100ms ease;
+}
+
+.hero__github-link:hover {
+  border-color: rgba(143, 215, 161, 0.72);
+  background: rgba(103, 182, 123, 0.3);
+}
+
+.hero__github-link:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.hero__github-link:focus-visible {
+  outline: 3px solid rgba(143, 215, 161, 0.8);
+  outline-offset: 3px;
+}
+
 .search-form {
   position: relative;
   z-index: 1;
@@ -325,6 +351,55 @@ input {
   text-align: center;
 }
 
+.daily-cache-panel {
+  margin-top: 1rem;
+  padding: 1.75rem;
+  background: rgba(27, 40, 31, 0.85);
+  border-color: rgba(103, 182, 123, 0.32);
+}
+
+.comparison-panel {
+  margin-top: 1rem;
+}
+
+.comparison-table {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.comparison-table__row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 2fr) repeat(3, minmax(6rem, 1fr));
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.comparison-table__row:last-child {
+  border-bottom: 0;
+}
+
+.comparison-table__header {
+  padding-top: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.comparison-change--positive {
+  color: var(--green-soft);
+}
+
+.comparison-change--negative {
+  color: #f09090;
+}
+
+.comparison-change--neutral {
+  color: var(--white);
+}
+
 .stale-panel {
   background: rgba(27, 40, 31, 0.85);
   border-color: rgba(103, 182, 123, 0.18);
@@ -388,6 +463,15 @@ input {
   .metric-table__row,
   .search-form__row {
     flex-direction: column;
+  }
+
+  .comparison-table__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 1rem;
+  }
+
+  .comparison-table__header {
+    display: none;
   }
 
   .search-form button {

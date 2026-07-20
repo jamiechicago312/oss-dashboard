@@ -21,6 +21,14 @@ function formatDuration(hours: number | null) {
   return `${(hours / 24).toFixed(1)}d`;
 }
 
+function formatPercentageChange(value: number | null) {
+  if (value === null) {
+    return "New or no prior value";
+  }
+
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
 function StatCard({
   label,
   value,
@@ -78,7 +86,10 @@ export function DashboardShell() {
     null,
   );
   const [showingStaleResult, setShowingStaleResult] = useState(false);
+  const [showingDailyCacheResult, setShowingDailyCacheResult] = useState(false);
   const pollIntervalRef = useRef<number | null>(null);
+  const metricChanges = result?.comparison?.metrics ?? [];
+  const previousSnapshotGeneratedAt = result?.comparison?.previousSnapshotGeneratedAt ?? null;
 
   useEffect(() => {
     if (!jobId || !jobStatus || jobStatus === "completed" || jobStatus === "failed") {
@@ -153,6 +164,7 @@ export function DashboardShell() {
     setJobId(null);
     setJobStatus(null);
     setShowingStaleResult(false);
+    setShowingDailyCacheResult(false);
 
     try {
       const response = await fetch("/api/analyze", {
@@ -165,9 +177,10 @@ export function DashboardShell() {
 
       const payload = (await response.json()) as
         | {
-            mode: "sync" | "async";
+            mode: "sync" | "async" | "cached";
             result: AnalyzeRepoResponse | null;
             isStale: boolean;
+            rateLimited: boolean;
             job: { id: string; status: "queued" | "running" | "completed" | "failed" } | null;
           }
         | { error: string };
@@ -178,6 +191,7 @@ export function DashboardShell() {
       if ("mode" in payload) {
         setResult(payload.result);
         setShowingStaleResult(payload.isStale);
+        setShowingDailyCacheResult(payload.rateLimited);
         setJobId(payload.job?.id ?? null);
         setJobStatus(payload.job?.status ?? null);
         setStatus(payload.result ? "done" : "loading");
@@ -192,21 +206,25 @@ export function DashboardShell() {
     <main className="page-shell">
       <section className="hero panel">
         <div className="hero__badge">OSS Dashboard</div>
-        <h1>Open Source Contributor Evaluation</h1>
-        <h2 className="hero__subtitle">Stop judging a project by stars</h2>
+        <h1>
+          Open Source<br />
+          Contributor<br />
+          Evaluation
+        </h1>
+        <h2 className="hero__subtitle">Choose projects worth contributing to.</h2>
         <p>
-          Use this dashboard to help evaluate your future open source contributor experience for a
-          project. Keep in mind that your time is valuable, so let&apos;s make sure this project is
-          worth your time. If you&apos;d like to contribute to this project or fork it, check out the{" "}
-          <a
-            href="https://github.com/jamiechicago312/oss-dashboard"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub Repo
-          </a>
-          .
+          Open source is an investment of your time. This dashboard helps you evaluate contributor
+          experience, maintainer responsiveness, documentation quality, and overall project health
+          before you write your first pull request.
         </p>
+        <a
+          className="hero__github-link"
+          href="https://github.com/jamiechicago312/oss-dashboard"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View on GitHub
+        </a>
 
         <form onSubmit={onSubmit} className="search-form">
           <div className="search-form__row">
@@ -236,6 +254,17 @@ export function DashboardShell() {
             This result is from an older cached snapshot for <strong>{result.target.slug}</strong>.
             A fresh analysis job is running now, and this page will update automatically when it
             finishes.
+          </p>
+        </section>
+      ) : null}
+
+      {showingDailyCacheResult && result ? (
+        <section className="panel daily-cache-panel">
+          <h2>Showing today&apos;s cached analysis</h2>
+          <p>
+            <strong>{result.target.slug}</strong> was already analyzed during the current UTC
+            calendar day. To keep repository requests to one per day, this cached snapshot is
+            being shown instead. A new analysis can run after 00:01 UTC.
           </p>
         </section>
       ) : null}
@@ -330,6 +359,40 @@ export function DashboardShell() {
               },
             ]}
           />
+
+          {metricChanges.length > 0 ? (
+            <section className="panel panel--wide comparison-panel">
+              <div className="panel__header">
+                <div>
+                  <h2>Changes since previous snapshot</h2>
+                  <p>
+                    Previous cache: {" "}
+                    {previousSnapshotGeneratedAt
+                      ? new Date(previousSnapshotGeneratedAt).toLocaleString("en-US")
+                      : "Unavailable"}
+                  </p>
+                </div>
+              </div>
+              <div className="comparison-table" role="table" aria-label="Snapshot metric changes">
+                <div className="comparison-table__row comparison-table__header" role="row">
+                  <span role="columnheader">Metric</span>
+                  <span role="columnheader">Previous</span>
+                  <span role="columnheader">Current</span>
+                  <span role="columnheader">Change</span>
+                </div>
+                {metricChanges.map((change) => (
+                  <div className="comparison-table__row" role="row" key={change.label}>
+                    <strong role="cell">{change.label}</strong>
+                    <span role="cell">{formatNumber(change.previousValue)}</span>
+                    <span role="cell">{formatNumber(change.currentValue)}</span>
+                    <span role="cell" className={`comparison-change comparison-change--${change.tone}`}>
+                      {formatPercentageChange(change.percentageChange)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <MetricTable
             title="Contributor Experience"

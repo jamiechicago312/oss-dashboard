@@ -28,6 +28,14 @@ function parseTarget(input: string) {
   return { owner, repo, slug: `${owner}/${repo}` };
 }
 
+function hasSnapshotInCurrentUtcDay(generatedAt: string) {
+  const now = new Date();
+  const currentDayCutoff = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 1),
+  );
+  return new Date(generatedAt).getTime() >= currentDayCutoff.getTime();
+}
+
 async function runRefreshJob(jobId: string, target: string) {
   try {
     await markAnalysisJobRunning(jobId);
@@ -57,6 +65,7 @@ export async function POST(request: NextRequest) {
           mode: "sync",
           result: response,
           isStale: false,
+          rateLimited: false,
           job: null,
         },
         { status: 200 },
@@ -68,6 +77,19 @@ export async function POST(request: NextRequest) {
     const parsedTarget = parseTarget(target);
     const cachedSnapshot = await loadLatestSnapshot(parsedTarget.owner, parsedTarget.repo);
     const cachedResult = (cachedSnapshot?.payload ?? null) as Awaited<ReturnType<typeof analyzeOrganization>> | null;
+
+    if (cachedResult && hasSnapshotInCurrentUtcDay(cachedResult.snapshot.generatedAt)) {
+      return NextResponse.json(
+        {
+          mode: "cached",
+          result: cachedResult,
+          isStale: false,
+          rateLimited: true,
+          job: null,
+        },
+        { status: 200 },
+      );
+    }
 
     let activeJob = await getActiveAnalysisJob(parsedTarget.owner, parsedTarget.repo);
 
@@ -89,6 +111,7 @@ export async function POST(request: NextRequest) {
         mode: "async",
         result: cachedResult,
         isStale: Boolean(cachedResult),
+        rateLimited: false,
         job: activeJob
           ? {
               id: activeJob.id,
