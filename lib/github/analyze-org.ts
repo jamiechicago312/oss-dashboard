@@ -742,14 +742,13 @@ export async function analyzeOrganization(input: string): Promise<AnalyzeRepoRes
 
   const notes = [
     "The product is now repo-only. Organization-wide scans are intentionally disabled.",
-    "GitHub token rotation uses GITHUB_TOKEN_1 and GITHUB_TOKEN_2. They should belong to different GitHub accounts if you want separate primary rate-limit budgets.",
     "Contributor experience metrics are calculated from external-contributor PRs opened in the last 90 days.",
     "Maintainer count is inferred from public PR author associations marked COLLABORATOR or OWNER.",
     "Org member count uses public org membership when available and is supplemented by recent PR authors marked MEMBER or OWNER.",
     "Contributor on-ramp checks look for CONTRIBUTING.md, maintainer-guide style markdown, and a good first issue label.",
     canIncrementallyRefresh
       ? `Incremental refresh reused cached PR history from ${cachedSnapshot?.payload.snapshot.generatedAt}.`
-      : "No prior cached PR history was available, so this refresh pulled the full 90-day window.",
+      : "If no prior cached PR history is available, the query pulls the full 90-day window. This may take up to 10 minutes for large repos.",
     ...runtimeNotes,
   ];
 

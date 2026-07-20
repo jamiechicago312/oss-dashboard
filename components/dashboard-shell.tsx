@@ -206,21 +206,25 @@ export function DashboardShell() {
     <main className="page-shell">
       <section className="hero panel">
         <div className="hero__badge">OSS Dashboard</div>
-        <h1>Open Source Contributor Evaluation</h1>
-        <h2 className="hero__subtitle">Stop judging a project by stars</h2>
+        <h1>
+          Open Source<br />
+          Contributor<br />
+          Evaluation
+        </h1>
+        <h2 className="hero__subtitle">Choose projects worth contributing to.</h2>
         <p>
-          Use this dashboard to help evaluate your future open source contributor experience for a
-          project. Keep in mind that your time is valuable, so let&apos;s make sure this project is
-          worth your time. If you&apos;d like to contribute to this project or fork it, check out the{" "}
-          <a
-            href="https://github.com/jamiechicago312/oss-dashboard"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub Repo
-          </a>
-          .
+          Open source is an investment of your time. This dashboard helps you evaluate contributor
+          experience, maintainer responsiveness, documentation quality, and overall project health
+          before you write your first pull request.
         </p>
+        <a
+          className="hero__github-link"
+          href="https://github.com/jamiechicago312/oss-dashboard"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View on GitHub
+        </a>
 
         <form onSubmit={onSubmit} className="search-form">
           <div className="search-form__row">
