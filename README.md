@@ -1,6 +1,6 @@
 # OSS Dashboard
 
-Next.js dashboard for evaluating one GitHub repository at a time.
+Next.js dashboard for evaluating one GitHub repository at a time. 
 
 ## Product direction
 
