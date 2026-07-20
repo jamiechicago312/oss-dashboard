@@ -218,7 +218,13 @@ export function DashboardShell() {
               placeholder="jamiechicago312/oss-dashboard"
               autoComplete="off"
             />
-            <button type="submit">Analyze</button>
+            <button
+              type="submit"
+              className={status === "loading" ? "is-loading" : undefined}
+              disabled={status === "loading"}
+            >
+              {status === "loading" ? "Analyzing…" : "Analyze"}
+            </button>
           </div>
         </form>
       </section>
@@ -248,6 +254,10 @@ export function DashboardShell() {
           <p className="loading-note">
             This is an indeterminate progress bar. The app cannot predict exact completion time
             because GitHub response volume varies by repository and cache state.
+          </p>
+          <p className="loading-note">
+            Large repositories can take 5–10 minutes to analyze. Keep this page open and it will
+            update automatically when the analysis is ready.
           </p>
           {jobStatus ? <p className="loading-note">Current job status: {jobStatus}</p> : null}
         </section>

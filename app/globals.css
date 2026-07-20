@@ -76,6 +76,7 @@ input {
   border-radius: 50%;
   background: rgba(103, 182, 123, 0.08);
   filter: blur(30px);
+  pointer-events: none;
 }
 
 .hero__badge {
@@ -119,6 +120,8 @@ input {
 }
 
 .search-form {
+  position: relative;
+  z-index: 1;
   margin-top: 1.75rem;
 }
 
@@ -151,6 +154,33 @@ input {
   background: rgba(103, 182, 123, 0.18);
   color: var(--white);
   cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease,
+    opacity 160ms ease, transform 100ms ease;
+}
+
+.search-form button:hover:not(:disabled) {
+  border-color: rgba(143, 215, 161, 0.72);
+  background: rgba(103, 182, 123, 0.32);
+  box-shadow: 0 0 0 4px rgba(103, 182, 123, 0.12);
+}
+
+.search-form button:active:not(:disabled) {
+  background: rgba(68, 142, 87, 0.46);
+  transform: translateY(1px) scale(0.98);
+}
+
+.search-form button:focus-visible {
+  outline: 3px solid rgba(143, 215, 161, 0.8);
+  outline-offset: 3px;
+}
+
+.search-form button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.search-form button.is-loading {
+  background: rgba(68, 142, 87, 0.42);
 }
 
 .hero__notes {
