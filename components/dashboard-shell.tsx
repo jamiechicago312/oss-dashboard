@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import type { AnalyzeOrgResponse } from "@/lib/github/types";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import type { AnalyzeRepoResponse } from "@/lib/github/types";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -70,22 +70,89 @@ function MetricTable({
 
 export function DashboardShell() {
   const [target, setTarget] = useState("");
-  const [result, setResult] = useState<AnalyzeOrgResponse | null>(null);
+  const [result, setResult] = useState<AnalyzeRepoResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<"queued" | "running" | "completed" | "failed" | null>(
+    null,
+  );
+  const [showingStaleResult, setShowingStaleResult] = useState(false);
+  const pollIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!jobId || !jobStatus || jobStatus === "completed" || jobStatus === "failed") {
+      if (pollIntervalRef.current !== null) {
+        window.clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const currentJobId = jobId;
+
+    async function pollJob() {
+      const response = await fetch(`/api/analyze/status?jobId=${encodeURIComponent(currentJobId)}`, {
+        method: "GET",
+      });
+
+      const payload = (await response.json()) as {
+        job?: { id: string; status: "queued" | "running" | "completed" | "failed"; errorMessage?: string | null };
+        result?: AnalyzeRepoResponse | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to poll analysis job.");
+      }
+
+      if (!payload.job) {
+        throw new Error("Job status payload was missing.");
+      }
+
+      setJobStatus(payload.job.status);
+
+      if (payload.job.status === "completed" && payload.result) {
+        setResult(payload.result);
+        setShowingStaleResult(false);
+        setStatus("done");
+        setError(null);
+      }
+
+      if (payload.job.status === "failed") {
+        setStatus("error");
+        setError(payload.job.errorMessage ?? "Analysis refresh failed.");
+      }
+    }
+
+    void pollJob();
+    pollIntervalRef.current = window.setInterval(() => {
+      void pollJob();
+    }, 3000);
+
+    return () => {
+      if (pollIntervalRef.current !== null) {
+        window.clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [jobId, jobStatus]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedTarget = target.trim();
     if (!trimmedTarget) {
-      setError("Enter a GitHub organization slug or owner/repo.");
+      setError('Enter a GitHub repository in "owner/repo" format.');
       return;
     }
 
     setStatus("loading");
     setError(null);
     setResult(null);
+    setJobId(null);
+    setJobStatus(null);
+    setShowingStaleResult(false);
 
     try {
       const response = await fetch("/api/analyze", {
@@ -96,115 +163,93 @@ export function DashboardShell() {
         body: JSON.stringify({ target: trimmedTarget }),
       });
 
-      const payload = (await response.json()) as AnalyzeOrgResponse | { error: string };
+      const payload = (await response.json()) as
+        | {
+            mode: "sync" | "async";
+            result: AnalyzeRepoResponse | null;
+            isStale: boolean;
+            job: { id: string; status: "queued" | "running" | "completed" | "failed" } | null;
+          }
+        | { error: string };
       if (!response.ok) {
-        throw new Error("error" in payload ? payload.error : "Failed to analyze organization.");
+        throw new Error("error" in payload ? payload.error : "Failed to analyze repository.");
       }
 
-      setResult(payload as AnalyzeOrgResponse);
-      setStatus("done");
+      if ("mode" in payload) {
+        setResult(payload.result);
+        setShowingStaleResult(payload.isStale);
+        setJobId(payload.job?.id ?? null);
+        setJobStatus(payload.job?.status ?? null);
+        setStatus(payload.result ? "done" : "loading");
+      }
     } catch (submissionError) {
       setStatus("error");
       setError(submissionError instanceof Error ? submissionError.message : "Unknown error.");
     }
   }
 
-  const actorRows = useMemo(() => {
-    if (!result) {
-      return [];
-    }
-
-    return [
-      {
-        label: "External contributor PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.external.count)} (${result.analysis.pullRequests.byActor.external.percent}%)`,
-      },
-      {
-        label: "Maintainer PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.maintainer.count)} (${result.analysis.pullRequests.byActor.maintainer.percent}%)`,
-      },
-      {
-        label: "Org member PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.orgMember.count)} (${result.analysis.pullRequests.byActor.orgMember.percent}%)`,
-      },
-      {
-        label: "Unknown PRs",
-        value: `${formatNumber(result.analysis.pullRequests.byActor.unknown.count)} (${result.analysis.pullRequests.byActor.unknown.percent}%)`,
-      },
-    ];
-  }, [result]);
-
-  const contributorReadinessRows = useMemo(() => {
-    if (!result) {
-      return [];
-    }
-
-    return result.analysis.contributorReadiness.topGoodFirstIssueRepos.map((repo) => ({
-      label: repo.repo,
-      value: formatNumber(repo.openGoodFirstIssues),
-      note: repo.hasContributingGuide
-        ? `Contributing guide: ${repo.contributingGuidePath ?? "detected"}`
-        : "No standard contributing guide detected.",
-    }));
-  }, [result]);
-
-  const missingGuidePreview = useMemo(() => {
-    if (!result) {
-      return "None";
-    }
-
-    const missing = result.analysis.contributorReadiness.reposMissingContributingGuide.slice(0, 6);
-    if (missing.length === 0) {
-      return "None";
-    }
-
-    return missing.join(", ");
-  }, [result]);
-
   return (
     <main className="page-shell">
       <section className="hero panel">
-        <div className="hero__badge">OSS due diligence</div>
-        <h1>Ride the perimeter before you commit to the ranch.</h1>
+        <div className="hero__badge">OSS Dashboard</div>
+        <h1>Open Source Contributor Evaluation</h1>
+        <h2 className="hero__subtitle">Stop judging a project by stars</h2>
         <p>
-          Pull a full public-org snapshot from GitHub, save it as JSON locally, and inspect
-          contribution health across every public repository in that organization or drill into a
-          single repository.
+          Use this dashboard to help evaluate your future open source contributor experience for a
+          project. Keep in mind that your time is valuable, so let&apos;s make sure this project is
+          worth your time. If you&apos;d like to contribute to this project or fork it, check out the{" "}
+          <a
+            href="https://github.com/jamiechicago312/oss-dashboard"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub Repo
+          </a>
+          .
         </p>
 
         <form onSubmit={onSubmit} className="search-form">
-          <label htmlFor="target">GitHub org or repo</label>
           <div className="search-form__row">
             <input
               id="target"
               name="target"
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              placeholder="nodejs or nodejs/node"
+              placeholder="jamiechicago312/oss-dashboard"
               autoComplete="off"
             />
-            <button type="submit">Go</button>
+            <button type="submit">Analyze</button>
           </div>
         </form>
-
-        <div className="hero__notes">
-          <span>Uses `GITHUB_TOKEN_1..4` when available.</span>
-          <span>Saves snapshots to `data/orgs/&lt;org&gt;`.</span>
-        </div>
       </section>
+
+      {showingStaleResult && result ? (
+        <section className="panel stale-panel">
+          <h2>Showing cached snapshot while refresh runs</h2>
+          <p>
+            This result is from an older cached snapshot for <strong>{result.target.slug}</strong>.
+            A fresh analysis job is running now, and this page will update automatically when it
+            finishes.
+          </p>
+        </section>
+      ) : null}
 
       {status === "loading" ? (
         <section className="panel loading-panel">
-          <div className="spinner-wrap" aria-hidden="true">
-            <div className="spinner spinner--outer" />
-            <div className="spinner spinner--middle" />
-            <div className="spinner spinner--inner" />
+          <div className="progress-shell" aria-hidden="true">
+            <div className="progress-track">
+              <div className="progress-bar" />
+            </div>
           </div>
-          <h2>Surveying the territory</h2>
+          <h2>Refreshing repository snapshot</h2>
           <p>
-            Pulling repos, contributors, PR totals, contributor-onramp signals, and 90-day review
-            latency metrics.
+            Pulling repo metadata, contributor signals, and the last 90 days of PR activity.
           </p>
+          <p className="loading-note">
+            This is an indeterminate progress bar. The app cannot predict exact completion time
+            because GitHub response volume varies by repository and cache state.
+          </p>
+          {jobStatus ? <p className="loading-note">Current job status: {jobStatus}</p> : null}
         </section>
       ) : null}
 
@@ -226,110 +271,80 @@ export function DashboardShell() {
                 </p>
               </div>
               <div className="eyebrow-list">
-                <span>
-                  {formatNumber(result.org.publicRepos)}{" "}
-                  {result.target.kind === "repo" ? "repo analyzed" : "public repos"}
-                </span>
-                <span>{formatNumber(result.org.archivedRepos)} archived repos</span>
-                <span>{formatNumber(result.snapshot.tokensUsed)} GitHub tokens in rotation</span>
+                <span>{result.repository.defaultBranch} default branch</span>
+                <span>{formatNumber(result.snapshot.tokensUsed)} tokens in rotation</span>
+                <span>{result.snapshot.cacheHit ? "Cache warm" : "First cached run"}</span>
               </div>
             </div>
 
             <div className="stat-grid">
+              <StatCard label="Stars" value={formatNumber(result.metrics.vanity.stars)} tone="blue" />
+              <StatCard label="Forks" value={formatNumber(result.metrics.vanity.forks)} tone="brown" />
               <StatCard
-                label="Stars"
-                value={formatNumber(result.metrics.vanity.stars)}
-                tone="blue"
-              />
-              <StatCard
-                label="Forks"
-                value={formatNumber(result.metrics.vanity.forks)}
-                tone="brown"
-              />
-              <StatCard
-                label="Repo contributors"
-                value={formatNumber(result.metrics.people.uniqueRepoContributors)}
+                label="Contributors"
+                value={formatNumber(result.metrics.vanity.contributors)}
                 tone="green"
-                note="Unique commit contributors across repos"
+                note="Unique repo contributors from the contributors endpoint"
               />
               <StatCard
                 label="Org members"
-                value={formatNumber(result.metrics.people.orgMembers)}
+                value={formatNumber(result.metrics.vanity.orgMembers)}
                 tone="red"
                 note={
-                  result.target.kind === "repo"
-                    ? "Observed MEMBER or OWNER PR authors"
-                    : "Public plus observed MEMBER or OWNER PR authors"
+                  result.repository.ownerType === "Organization"
+                    ? "Public org members plus observed MEMBER or OWNER PR authors"
+                    : "User-owned repo: only observed OWNER associations are available"
                 }
               />
             </div>
           </section>
 
           <MetricTable
-            title="PR Totals"
+            title="PR Activity"
             rows={[
               {
-                label: "Opened",
-                value: formatNumber(result.metrics.pullRequestTotals.opened),
+                label: "Last 90 days",
+                value: formatNumber(result.metrics.pullRequests.totalLast90Days),
               },
               {
-                label: "Merged",
-                value: formatNumber(result.metrics.pullRequestTotals.merged),
+                label: "All-time opened",
+                value: formatNumber(result.metrics.pullRequests.opened),
               },
               {
-                label: "Closed",
-                value: formatNumber(result.metrics.pullRequestTotals.closed),
+                label: "All-time merged",
+                value: formatNumber(result.metrics.pullRequests.merged),
               },
               {
-                label: "Analyzed window",
-                value: result.analysis.window.label,
-                note: "Recent PR analysis operates over the last 90 days.",
+                label: "All-time closed",
+                value: formatNumber(result.metrics.pullRequests.closed),
               },
             ]}
           />
-
-          <MetricTable title="Actor Mix" rows={actorRows} />
 
           <MetricTable
             title="Contributor Experience"
             rows={[
               {
                 label: "Average time to first review",
-                value: formatDuration(result.analysis.externalContributors.averageHoursToFirstReview),
+                value: formatDuration(result.metrics.contributorExperience.averageHoursToFirstReview),
               },
               {
                 label: "Average time to merge",
-                value: formatDuration(result.analysis.externalContributors.averageHoursToMerge),
+                value: formatDuration(result.metrics.contributorExperience.averageHoursToMerge),
               },
               {
                 label: "Repeat contributors",
-                value: formatNumber(result.analysis.externalContributors.repeatContributors),
+                value: formatNumber(result.metrics.contributorExperience.repeatContributors),
                 note: "External contributors with more than one PR in the 90-day window.",
               },
               {
-                label: "Unique contributors",
-                value: formatNumber(result.analysis.externalContributors.uniqueContributors),
-              },
-            ]}
-          />
-
-          <MetricTable
-            title="Role Coverage"
-            rows={[
-              {
                 label: "Maintainers",
-                value: formatNumber(result.metrics.people.maintainers),
-                note: "Approximation based on public PR/review associations.",
+                value: formatNumber(result.metrics.contributorExperience.maintainers),
+                note: "Inferred from public PR author associations.",
               },
               {
                 label: "External contributors",
-                value: formatNumber(result.metrics.people.externalContributors),
-                note: "Maintainers and public org members removed from this set.",
-              },
-              {
-                label: "Repos with contributing guides",
-                value: formatNumber(result.metrics.contributorReadiness.reposWithContributingGuide),
-                note: "Detected through GitHub community profile data.",
+                value: formatNumber(result.metrics.contributorExperience.externalContributors),
               },
             ]}
           />
@@ -338,49 +353,59 @@ export function DashboardShell() {
             title="Contributor Onramp"
             rows={[
               {
+                label: "Contributing guide",
+                value: result.metrics.contributorOnRamp.hasContributingGuide ? "Yes" : "No",
+                note:
+                  result.metrics.contributorOnRamp.contributingGuidePath ??
+                  "No standard contributing guide detected.",
+              },
+              {
+                label: "Maintainer guide",
+                value: result.metrics.contributorOnRamp.hasMaintainerGuide ? "Yes" : "No",
+                note:
+                  result.metrics.contributorOnRamp.maintainerGuidePath ??
+                  "No maintainer markdown file detected.",
+              },
+              {
+                label: "Good first issue label",
+                value: result.metrics.contributorOnRamp.goodFirstIssueLabel ?? "Not found",
+              },
+              {
                 label: "Open good first issues",
-                value: formatNumber(result.metrics.contributorReadiness.openGoodFirstIssues),
-              },
-              {
-                label: "Repos with good first issue labels",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithGoodFirstIssueLabel,
-                ),
-              },
-              {
-                label: "Repos with open good first issues",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithOpenGoodFirstIssues,
-                ),
-              },
-              {
-                label: "Repos missing contributing guides",
-                value: formatNumber(
-                  result.metrics.contributorReadiness.reposWithoutContributingGuide,
-                ),
-                note: missingGuidePreview,
+                value: formatNumber(result.metrics.contributorOnRamp.openGoodFirstIssues),
               },
             ]}
           />
 
           <MetricTable
-            title="Top Good First Issue Repos"
-            rows={
-              contributorReadinessRows.length > 0
-                ? contributorReadinessRows
-                : [
-                    {
-                      label: "No open good first issues found",
-                      value: "0",
-                      note: "Either no matching label exists or no open issues currently use it.",
-                    },
-                  ]
-            }
+            title="Cache Reuse"
+            rows={[
+              {
+                label: "Reused PR records",
+                value: formatNumber(result.analysis.cache.reusedPullRequests),
+              },
+              {
+                label: "Refreshed PR records",
+                value: formatNumber(result.analysis.cache.refreshedPullRequests),
+              },
+              {
+                label: "Reused review records",
+                value: formatNumber(result.analysis.cache.reusedReviews),
+              },
+              {
+                label: "Refreshed review records",
+                value: formatNumber(result.analysis.cache.refreshedReviews),
+                note:
+                  result.snapshot.baseSnapshotGeneratedAt
+                    ? `Base snapshot ${new Date(result.snapshot.baseSnapshotGeneratedAt).toLocaleString("en-US")}`
+                    : "No prior snapshot existed.",
+              },
+            ]}
           />
 
           <section className="panel panel--wide">
             <div className="panel__header">
-              <h2>Snapshot caveats</h2>
+              <h2>Snapshot notes</h2>
             </div>
             <ul className="caveat-list">
               {result.snapshot.notes.map((note) => (

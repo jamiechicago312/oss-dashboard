@@ -1,8 +1,12 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { GitHubClientPool } from "@/lib/github/client";
+import {
+  ensureSnapshotTable,
+  isSnapshotStoreConfigured,
+  loadLatestSnapshot,
+  saveSnapshot,
+} from "@/lib/neon/snapshots";
 import type {
-  AnalyzeOrgResponse,
+  AnalyzeRepoResponse,
   OrgRepo,
   PullRequestReview,
   PullRequestSummary,
@@ -28,11 +32,6 @@ type GraphQlRepoCounts = {
   };
 };
 
-type RepoRecentPullRequests = {
-  repo: OrgRepo;
-  pulls: PullRequestSummary[];
-};
-
 type RepoLabel = {
   name: string;
 };
@@ -50,24 +49,49 @@ type CommunityProfile = {
   } | null;
 };
 
-const ANALYSIS_WINDOW_DAYS = 90;
-const DATA_ROOT = path.join(process.cwd(), "data");
+type ContentFile = {
+  path?: string;
+  type?: string;
+};
 
-type AnalysisTarget =
-  | {
-      kind: "org";
-      owner: string;
-      repo: null;
-      slug: string;
-      directory: string;
-    }
-  | {
-      kind: "repo";
-      owner: string;
-      repo: string;
-      slug: string;
-      directory: string;
-    };
+type CachedRawSnapshot = {
+  publicMembers?: PublicMember[];
+  repoContributors?: RepoContributor[];
+  repoPullCounts?: {
+    opened: number;
+    merged: number;
+    closed: number;
+  };
+  recentPullRequests?: PullRequestSummary[];
+  pullRequestReviews?: Array<{ number: number; reviews: PullRequestReview[] }>;
+  contributorReadiness?: RepoReadinessSummary;
+};
+
+type CachedSnapshot = {
+  payload: AnalyzeRepoResponse;
+  raw: CachedRawSnapshot;
+};
+
+const ANALYSIS_WINDOW_DAYS = 90;
+const CONTRIBUTING_GUIDE_CANDIDATES = [
+  ".github/CONTRIBUTING.md",
+  "CONTRIBUTING.md",
+  "docs/CONTRIBUTING.md",
+  ".github/contributing.md",
+  "contributing.md",
+  "docs/contributing.md",
+];
+const MAINTAINER_GUIDE_CANDIDATES = [
+  ".github/MAINTAINERS.md",
+  "MAINTAINERS.md",
+  "docs/MAINTAINERS.md",
+  ".github/MAINTAINER.md",
+  "MAINTAINER.md",
+  "docs/MAINTAINER.md",
+  ".github/maintainers.md",
+  "maintainers.md",
+  "docs/maintainers.md",
+];
 
 function isRateLimitError(error: unknown) {
   return (
@@ -89,19 +113,13 @@ async function runStage<T>(
     return await work();
   } catch (error) {
     if (isRateLimitError(error)) {
-      notes.push(`${label} was skipped because GitHub rate limits were reached for this refresh.`);
+      notes.push(`${label} was skipped because GitHub rate limits were reached during this refresh.`);
       return fallback;
     }
 
-    notes.push(
-      `${label} was skipped because one or more GitHub responses were incomplete or invalid during this refresh.`,
-    );
+    notes.push(`${label} was skipped because GitHub returned incomplete or invalid data.`);
     return fallback;
   }
-}
-
-function slugifyTimestamp(date: Date) {
-  return date.toISOString().replaceAll(":", "-");
 }
 
 function chunk<T>(items: T[], size: number) {
@@ -151,32 +169,12 @@ async function paginate<T>(
   return items;
 }
 
-function roundPercent(value: number, total: number) {
-  if (total === 0) {
-    return 0;
-  }
-
-  return Number(((value / total) * 100).toFixed(1));
-}
-
 function average(values: number[]) {
   if (values.length === 0) {
     return null;
   }
 
   return Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2));
-}
-
-function isExternalAssociation(association: string) {
-  return ["CONTRIBUTOR", "FIRST_TIME_CONTRIBUTOR", "FIRST_TIMER", "NONE"].includes(association);
-}
-
-function isMaintainerAssociation(association: string) {
-  return association === "COLLABORATOR";
-}
-
-function isOrgAssociation(association: string) {
-  return association === "MEMBER" || association === "OWNER";
 }
 
 function normalizeLabelName(value: string) {
@@ -187,56 +185,45 @@ function isGoodFirstIssueLabel(value: string) {
   return normalizeLabelName(value) === "goodfirstissue";
 }
 
-function parseTarget(input: string): AnalysisTarget {
+function isExternalAssociation(association: string) {
+  return ["CONTRIBUTOR", "FIRST_TIME_CONTRIBUTOR", "FIRST_TIMER", "NONE"].includes(association);
+}
+
+function isMaintainerAssociation(association: string) {
+  return association === "COLLABORATOR" || association === "OWNER";
+}
+
+function isObservedOrgMemberAssociation(association: string) {
+  return association === "MEMBER" || association === "OWNER";
+}
+
+function parseTarget(input: string) {
   const normalized = input.trim().replace(/^\/+|\/+$/g, "");
   const segments = normalized.split("/").filter(Boolean);
 
-  if (segments.length === 1) {
-    const owner = segments[0];
-    return {
-      kind: "org",
-      owner,
-      repo: null,
-      slug: owner,
-      directory: path.join(DATA_ROOT, "orgs", owner.toLowerCase()),
-    };
+  if (segments.length !== 2) {
+    throw new Error('Enter a GitHub repository in "owner/repo" format.');
   }
 
-  if (segments.length === 2) {
-    const [owner, repo] = segments;
-    return {
-      kind: "repo",
-      owner,
-      repo,
-      slug: `${owner}/${repo}`,
-      directory: path.join(DATA_ROOT, "repos", owner.toLowerCase(), repo.toLowerCase()),
-    };
-  }
-
-  throw new Error('Enter either an organization slug like "nodejs" or a repository like "nodejs/node".');
+  const [owner, repo] = segments;
+  return {
+    owner,
+    repo,
+    slug: `${owner}/${repo}`,
+  };
 }
 
-async function loadLatestSnapshot(directory: string) {
-  try {
-    const snapshot = await readFile(path.join(directory, "latest.json"), "utf8");
-    return JSON.parse(snapshot) as AnalyzeOrgResponse;
-  } catch {
+function parseCachedSnapshot(snapshot: unknown): CachedSnapshot | null {
+  if (!snapshot || typeof snapshot !== "object") {
     return null;
   }
-}
 
-async function fetchOrgRepos(client: GitHubClientPool, org: string) {
-  return paginate<OrgRepo>((page) =>
-    client.rest<OrgRepo[]>({
-      path: `/orgs/${org}/repos`,
-      query: {
-        type: "public",
-        sort: "updated",
-        per_page: 100,
-        page,
-      },
-    }),
-  );
+  const candidate = snapshot as CachedSnapshot;
+  if (!candidate.payload || !candidate.raw) {
+    return null;
+  }
+
+  return candidate;
 }
 
 async function fetchSingleRepo(client: GitHubClientPool, owner: string, repo: string) {
@@ -257,10 +244,10 @@ async function fetchPublicOrgMembers(client: GitHubClientPool, org: string) {
   );
 }
 
-async function fetchRepoContributors(client: GitHubClientPool, org: string, repo: string) {
+async function fetchRepoContributors(client: GitHubClientPool, owner: string, repo: string) {
   return paginate<RepoContributor>((page) =>
     client.rest<RepoContributor[]>({
-      path: `/repos/${org}/${repo}/contributors`,
+      path: `/repos/${owner}/${repo}/contributors`,
       query: {
         per_page: 100,
         page,
@@ -270,7 +257,7 @@ async function fetchRepoContributors(client: GitHubClientPool, org: string, repo
   );
 }
 
-async function fetchRepoPullRequestCounts(client: GitHubClientPool, org: string, repo: string) {
+async function fetchRepoPullRequestCounts(client: GitHubClientPool, owner: string, repo: string) {
   const payload = await client.graphQl<GraphQlRepoCounts>({
     query: `
       query RepoPullRequestCounts($owner: String!, $repo: String!) {
@@ -282,7 +269,7 @@ async function fetchRepoPullRequestCounts(client: GitHubClientPool, org: string,
       }
     `,
     variables: {
-      owner: org,
+      owner,
       repo,
     },
   });
@@ -298,11 +285,11 @@ async function fetchRepoPullRequestCounts(client: GitHubClientPool, org: string,
   };
 }
 
-async function fetchRepoLabels(client: GitHubClientPool, org: string, repo: string) {
+async function fetchRepoLabels(client: GitHubClientPool, owner: string, repo: string) {
   return paginate<RepoLabel>(async (page) => {
     const labels = await client.restOptional<RepoLabel[]>(
       {
-        path: `/repos/${org}/${repo}/labels`,
+        path: `/repos/${owner}/${repo}/labels`,
         query: {
           per_page: 100,
           page,
@@ -317,7 +304,7 @@ async function fetchRepoLabels(client: GitHubClientPool, org: string, repo: stri
 
 async function fetchOpenIssuesByLabel(
   client: GitHubClientPool,
-  org: string,
+  owner: string,
   repo: string,
   label: string,
 ) {
@@ -325,7 +312,7 @@ async function fetchOpenIssuesByLabel(
     client
       .restOptional<IssueSummary[]>(
         {
-          path: `/repos/${org}/${repo}/issues`,
+          path: `/repos/${owner}/${repo}/issues`,
           query: {
             state: "open",
             labels: label,
@@ -341,25 +328,47 @@ async function fetchOpenIssuesByLabel(
   return issues.filter((issue) => !issue.pull_request).length;
 }
 
-async function fetchCommunityProfile(client: GitHubClientPool, org: string, repo: string) {
+async function fetchCommunityProfile(client: GitHubClientPool, owner: string, repo: string) {
   return client.restOptional<CommunityProfile>(
     {
-      path: `/repos/${org}/${repo}/community/profile`,
+      path: `/repos/${owner}/${repo}/community/profile`,
     },
     [404],
   );
 }
 
+async function fetchStandardFilePath(
+  client: GitHubClientPool,
+  owner: string,
+  repo: string,
+  candidates: string[],
+) {
+  for (const filePath of candidates) {
+    const file = await client.restOptional<ContentFile>(
+      {
+        path: `/repos/${owner}/${repo}/contents/${encodeURIComponent(filePath).replace(/%2F/g, "/")}`,
+      },
+      [404],
+    );
+
+    if (file?.type === "file") {
+      return file.path ?? filePath;
+    }
+  }
+
+  return null;
+}
+
 async function fetchRecentRepoPullRequests(
   client: GitHubClientPool,
-  org: string,
-  repo: OrgRepo,
+  owner: string,
+  repo: string,
   cutoffDate: Date,
 ) {
   const pulls = await paginate<PullRequestSummary>(
     (page) =>
       client.rest<PullRequestSummary[]>({
-        path: `/repos/${org}/${repo.name}/pulls`,
+        path: `/repos/${owner}/${repo}/pulls`,
         query: {
           state: "all",
           sort: "created",
@@ -381,387 +390,361 @@ async function fetchRecentRepoPullRequests(
   return pulls.filter((pull) => new Date(pull.created_at) >= cutoffDate);
 }
 
+async function fetchUpdatedRepoPullRequests(
+  client: GitHubClientPool,
+  owner: string,
+  repo: string,
+  since: Date,
+) {
+  const pulls = await paginate<PullRequestSummary>(
+    (page) =>
+      client.rest<PullRequestSummary[]>({
+        path: `/repos/${owner}/${repo}/pulls`,
+        query: {
+          state: "all",
+          sort: "updated",
+          direction: "desc",
+          per_page: 100,
+          page,
+        },
+      }),
+    (pageItems) => {
+      if (pageItems.length === 0) {
+        return false;
+      }
+
+      const oldest = new Date(pageItems[pageItems.length - 1].updated_at);
+      return oldest >= since;
+    },
+  );
+
+  return pulls.filter((pull) => new Date(pull.updated_at) >= since);
+}
+
 async function fetchPullRequestReviews(
   client: GitHubClientPool,
-  org: string,
+  owner: string,
   repo: string,
   number: number,
 ) {
   return client.rest<PullRequestReview[]>({
-    path: `/repos/${org}/${repo}/pulls/${number}/reviews`,
+    path: `/repos/${owner}/${repo}/pulls/${number}/reviews`,
     query: {
       per_page: 100,
     },
   });
 }
 
-export async function analyzeOrganization(input: string): Promise<AnalyzeOrgResponse> {
+export async function analyzeOrganization(input: string): Promise<AnalyzeRepoResponse> {
   const target = parseTarget(input);
-  const tokens = [1, 2, 3, 4]
-    .map((index) => process.env[`GITHUB_TOKEN_${index}`])
-    .filter((token): token is string => Boolean(token));
+  const tokens = [process.env.GITHUB_TOKEN_1, process.env.GITHUB_TOKEN_2].filter(
+    (token): token is string => Boolean(token?.trim()),
+  );
   const client = new GitHubClientPool(tokens);
   const generatedAt = new Date();
   const cutoffDate = new Date(generatedAt);
   cutoffDate.setDate(cutoffDate.getDate() - ANALYSIS_WINDOW_DAYS);
   const runtimeNotes: string[] = [];
 
-  try {
-    const repos =
-      target.kind === "org"
-        ? await fetchOrgRepos(client, target.owner)
-        : [await fetchSingleRepo(client, target.owner, target.repo)];
-    if (repos.length === 0) {
-      throw new Error(`No public repositories found for "${target.slug}".`);
-    }
-
-    const publicMembers =
-      target.kind === "org"
-        ? await runStage(
-            "Public org member collection",
-            () => fetchPublicOrgMembers(client, target.owner),
-            [],
-            runtimeNotes,
-          )
-        : [];
-    const observedOrgMembers = new Set(publicMembers.map((member) => member.login.toLowerCase()));
-
-    const repoContributorLists = await runStage(
-      "Contributor collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), (repo) =>
-          fetchRepoContributors(client, target.owner, repo.name),
-        ),
-      repos.map(() => [] as RepoContributor[]),
-      runtimeNotes,
-    );
-    const repoPullCounts = await runStage(
-      "PR total collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), (repo) =>
-          fetchRepoPullRequestCounts(client, target.owner, repo.name),
-        ),
-      repos.map(() => ({ opened: 0, merged: 0, closed: 0 })),
-      runtimeNotes,
-    );
-    const repoRecentPulls = await runStage(
-      "Recent PR collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), async (repo) => ({
-          repo,
-          pulls: await fetchRecentRepoPullRequests(client, target.owner, repo, cutoffDate),
-        })),
-      repos.map((repo) => ({ repo, pulls: [] as PullRequestSummary[] })),
-      runtimeNotes,
-    );
-    const repoReadiness = await runStage(
-      "Contributor readiness collection",
-      () =>
-        mapWithConcurrency(repos, Math.max(client.tokenCount, 1), async (repo) => {
-          try {
-            const [labels, communityProfile] = await Promise.all([
-              fetchRepoLabels(client, target.owner, repo.name),
-              fetchCommunityProfile(client, target.owner, repo.name),
-            ]);
-            const matchedLabel =
-              labels.find((label) => isGoodFirstIssueLabel(label.name))?.name ?? null;
-            const openGoodFirstIssues = matchedLabel
-              ? await fetchOpenIssuesByLabel(client, target.owner, repo.name, matchedLabel)
-              : 0;
-            const contributingGuidePath = communityProfile?.files?.contributing?.path ?? null;
-
-            return {
-              repo: repo.name,
-              goodFirstIssueLabel: matchedLabel,
-              openGoodFirstIssues,
-              hasContributingGuide: Boolean(contributingGuidePath),
-              contributingGuidePath,
-            } satisfies RepoReadinessSummary;
-          } catch {
-            return {
-              repo: repo.name,
-              goodFirstIssueLabel: null,
-              openGoodFirstIssues: 0,
-              hasContributingGuide: false,
-              contributingGuidePath: null,
-            } satisfies RepoReadinessSummary;
-          }
-        }),
-      repos.map((repo) => ({
-        repo: repo.name,
-        goodFirstIssueLabel: null,
-        openGoodFirstIssues: 0,
-        hasContributingGuide: false,
-        contributingGuidePath: null,
-      })),
-      runtimeNotes,
-    );
-
-    const contributorLogins = new Set<string>();
-    for (const contributors of repoContributorLists) {
-      for (const contributor of contributors) {
-        if (contributor.login) {
-          contributorLogins.add(contributor.login.toLowerCase());
-        }
-      }
-    }
-
-    const recentPulls = repoRecentPulls.flatMap((entry) =>
-      entry.pulls.map((pull) => ({
-        ...pull,
-        repo: entry.repo.name,
-      })),
-    );
-
-    const externalPulls = recentPulls.filter((pull) => isExternalAssociation(pull.author_association));
-    const reviewsByPull = await runStage(
-      "PR review collection",
-      () =>
-        mapWithConcurrency(
-          externalPulls,
-          Math.max(client.tokenCount, 1),
-          async (pull) => ({
-            repo: pull.repo,
-            number: pull.number,
-            reviews: await fetchPullRequestReviews(client, target.owner, pull.repo, pull.number),
-          }),
-        ),
-      [] as Array<{ repo: string; number: number; reviews: PullRequestReview[] }>,
-      runtimeNotes,
-    );
-
-    const reviewLookup = new Map<string, PullRequestReview[]>();
-    for (const entry of reviewsByPull) {
-      reviewLookup.set(`${entry.repo}#${entry.number}`, entry.reviews);
-    }
-
-    const maintainers = new Set<string>();
-    const externalContributors = new Set<string>();
-    const externalPullCounts = new Map<string, number>();
-    const firstReviewLatencies: number[] = [];
-    const mergeLatencies: number[] = [];
-
-    const actorCounts = {
-      external: 0,
-      maintainer: 0,
-      orgMember: 0,
-      unknown: 0,
-    };
-
-    for (const pull of recentPulls) {
-      const login = pull.user?.login?.toLowerCase();
-      const association = pull.author_association;
-
-      if (login) {
-        if (isMaintainerAssociation(association)) {
-          maintainers.add(login);
-        } else if (isOrgAssociation(association)) {
-          observedOrgMembers.add(login);
-        } else if (isExternalAssociation(association)) {
-          externalContributors.add(login);
-          externalPullCounts.set(login, (externalPullCounts.get(login) ?? 0) + 1);
-        }
-      }
-
-      if (isMaintainerAssociation(association)) {
-        actorCounts.maintainer += 1;
-      } else if (isOrgAssociation(association)) {
-        actorCounts.orgMember += 1;
-      } else if (isExternalAssociation(association)) {
-        actorCounts.external += 1;
-      } else {
-        actorCounts.unknown += 1;
-      }
-
-      if (login && isExternalAssociation(association)) {
-        const reviews = reviewLookup
-          .get(`${pull.repo}#${pull.number}`)
-          ?.filter((review) => Boolean(review.submitted_at))
-          .sort((left, right) =>
-            (left.submitted_at ?? "").localeCompare(right.submitted_at ?? ""),
-          );
-        const firstReview = reviews?.[0];
-
-        if (firstReview?.submitted_at) {
-          const reviewHours =
-            (new Date(firstReview.submitted_at).getTime() - new Date(pull.created_at).getTime()) /
-            3_600_000;
-          if (reviewHours >= 0) {
-            firstReviewLatencies.push(reviewHours);
-          }
-        }
-
-        if (pull.merged_at) {
-          const mergeHours =
-            (new Date(pull.merged_at).getTime() - new Date(pull.created_at).getTime()) /
-            3_600_000;
-          if (mergeHours >= 0) {
-            mergeLatencies.push(mergeHours);
-          }
-        }
-      }
-    }
-
-    for (const login of observedOrgMembers) {
-      externalContributors.delete(login);
-      maintainers.delete(login);
-    }
-
-    for (const login of maintainers) {
-      externalContributors.delete(login);
-    }
-
-    const totals = repoPullCounts.reduce(
-      (sum, repoCount) => ({
-        opened: sum.opened + repoCount.opened + repoCount.merged + repoCount.closed,
-        merged: sum.merged + repoCount.merged,
-        closed: sum.closed + repoCount.closed,
-      }),
-      { opened: 0, merged: 0, closed: 0 },
-    );
-
-    const notes = [
-      "Org member counts combine public membership data with users observed as MEMBER or OWNER on recent PRs.",
-      "Maintainer counts are approximated from public PR author associations and do not expose full collaborator permission grids.",
-      "Contributor experience metrics are calculated only for external-contributor PRs opened in the last 90 days.",
-      "Good first issue metrics look for labels normalized to `goodfirstissue`, so `good first issue` and `good-first-issue` are both counted.",
-      "Contribution guide detection uses GitHub's public community profile data and may miss unconventional onboarding docs outside the standard contributing file path.",
-      "Review fetches are limited to external-contributor PRs to reduce API pressure on large targets.",
-      ...runtimeNotes,
-    ];
-
-    const topGoodFirstIssueRepos = [...repoReadiness]
-      .filter((repo) => repo.openGoodFirstIssues > 0)
-      .sort((left, right) => right.openGoodFirstIssues - left.openGoodFirstIssues)
-      .slice(0, 5);
-    const reposMissingContributingGuide = repoReadiness
-      .filter((repo) => !repo.hasContributingGuide)
-      .map((repo) => repo.repo)
-      .sort((left, right) => left.localeCompare(right));
-
-    await mkdir(target.directory, { recursive: true });
-
-    const response: AnalyzeOrgResponse = {
-      target: {
-        kind: target.kind,
-        owner: target.owner,
-        repo: target.repo,
-        slug: target.slug,
-      },
-      org: {
-        login: target.slug,
-        publicRepos: repos.length,
-        archivedRepos: repos.filter((repo) => repo.archived).length,
-      },
-      snapshot: {
-        generatedAt: generatedAt.toISOString(),
-        orgDirectory: target.directory,
-        tokensUsed: Math.max(client.tokenCount, 1),
-        notes,
-      },
-      metrics: {
-        vanity: {
-          stars: repos.reduce((sum, repo) => sum + repo.stargazers_count, 0),
-          forks: repos.reduce((sum, repo) => sum + repo.forks_count, 0),
-        },
-        pullRequestTotals: totals,
-        people: {
-          uniqueRepoContributors: contributorLogins.size,
-          orgMembers: observedOrgMembers.size,
-          maintainers: maintainers.size,
-          externalContributors: externalContributors.size,
-        },
-        contributorReadiness: {
-          reposWithGoodFirstIssueLabel: repoReadiness.filter((repo) => repo.goodFirstIssueLabel)
-            .length,
-          reposWithOpenGoodFirstIssues: repoReadiness.filter(
-            (repo) => repo.openGoodFirstIssues > 0,
-          ).length,
-          openGoodFirstIssues: repoReadiness.reduce(
-            (sum, repo) => sum + repo.openGoodFirstIssues,
-            0,
-          ),
-          reposWithContributingGuide: repoReadiness.filter((repo) => repo.hasContributingGuide)
-            .length,
-          reposWithoutContributingGuide: repoReadiness.filter(
-            (repo) => !repo.hasContributingGuide,
-          ).length,
-        },
-      },
-      analysis: {
-        window: {
-          start: cutoffDate.toISOString(),
-          end: generatedAt.toISOString(),
-          label: "Last 90 days",
-        },
-        pullRequests: {
-          total: recentPulls.length,
-          byActor: {
-            external: {
-              count: actorCounts.external,
-              percent: roundPercent(actorCounts.external, recentPulls.length),
-            },
-            maintainer: {
-              count: actorCounts.maintainer,
-              percent: roundPercent(actorCounts.maintainer, recentPulls.length),
-            },
-            orgMember: {
-              count: actorCounts.orgMember,
-              percent: roundPercent(actorCounts.orgMember, recentPulls.length),
-            },
-            unknown: {
-              count: actorCounts.unknown,
-              percent: roundPercent(actorCounts.unknown, recentPulls.length),
-            },
-          },
-        },
-        externalContributors: {
-          uniqueContributors: externalContributors.size,
-          repeatContributors: [...externalPullCounts.values()].filter((count) => count > 1)
-            .length,
-          averageHoursToFirstReview: average(firstReviewLatencies),
-          averageHoursToMerge: average(mergeLatencies),
-        },
-        contributorReadiness: {
-          repos: repoReadiness,
-          topGoodFirstIssueRepos,
-          reposMissingContributingGuide,
-        },
-      },
-    };
-
-    const timestampSlug = slugifyTimestamp(generatedAt);
-    const snapshotPayload = {
-      ...response,
-      raw: {
-        repos,
-        publicMembers,
-        repoContributors: repoContributorLists,
-        repoPullCounts,
-        recentPullRequests: repoRecentPulls as RepoRecentPullRequests[],
-        pullRequestReviews: reviewsByPull,
-        repoReadiness,
-      },
-    };
-
-    await writeFile(
-      path.join(target.directory, `${timestampSlug}.json`),
-      `${JSON.stringify(snapshotPayload, null, 2)}\n`,
-      "utf8",
-    );
-    await writeFile(
-      path.join(target.directory, "latest.json"),
-      `${JSON.stringify(snapshotPayload, null, 2)}\n`,
-      "utf8",
-    );
-
-    return response;
-  } catch (error) {
-    const fallback = await loadLatestSnapshot(target.directory);
-    if (fallback) {
-      return fallback;
-    }
-
-    throw error;
+  const snapshotStoreEnabled = isSnapshotStoreConfigured();
+  if (snapshotStoreEnabled) {
+    await ensureSnapshotTable();
+  } else {
+    runtimeNotes.push("Neon snapshot storage is disabled because DATABASE_URL is not configured.");
   }
+
+  const latestSnapshotRecord = snapshotStoreEnabled
+    ? await loadLatestSnapshot(target.owner, target.repo)
+    : null;
+  const cachedSnapshot = parseCachedSnapshot(latestSnapshotRecord);
+  const cachedGeneratedAt =
+    cachedSnapshot?.payload.snapshot.generatedAt
+      ? new Date(cachedSnapshot.payload.snapshot.generatedAt)
+      : null;
+  const canIncrementallyRefresh =
+    Boolean(cachedGeneratedAt) && !Number.isNaN(cachedGeneratedAt?.getTime() ?? Number.NaN);
+
+  const repo = await fetchSingleRepo(client, target.owner, target.repo);
+  const ownerType = repo.owner.type;
+
+  const publicMembers =
+    ownerType === "Organization"
+      ? await runStage(
+          "Public org member collection",
+          () => fetchPublicOrgMembers(client, target.owner),
+          cachedSnapshot?.raw.publicMembers ?? [],
+          runtimeNotes,
+        )
+      : [];
+
+  const observedOrgMembers = new Set(publicMembers.map((member) => member.login.toLowerCase()));
+
+  const repoContributors = await runStage(
+    "Contributor collection",
+    () => fetchRepoContributors(client, target.owner, target.repo),
+    cachedSnapshot?.raw.repoContributors ?? [],
+    runtimeNotes,
+  );
+
+  const repoPullCounts = await runStage(
+    "PR total collection",
+    () => fetchRepoPullRequestCounts(client, target.owner, target.repo),
+    cachedSnapshot?.raw.repoPullCounts ?? { opened: 0, merged: 0, closed: 0 },
+    runtimeNotes,
+  );
+
+  const cachedPulls = (cachedSnapshot?.raw.recentPullRequests ?? []).filter(
+    (pull) => new Date(pull.created_at) >= cutoffDate,
+  );
+  const refreshedPulls = await runStage(
+    "Recent PR collection",
+    () =>
+      canIncrementallyRefresh && cachedGeneratedAt
+        ? fetchUpdatedRepoPullRequests(client, target.owner, target.repo, cachedGeneratedAt)
+        : fetchRecentRepoPullRequests(client, target.owner, target.repo, cutoffDate),
+    [] as PullRequestSummary[],
+    runtimeNotes,
+  );
+
+  const changedPullNumbers = new Set(refreshedPulls.map((pull) => pull.number));
+  const pullLookup = new Map<number, PullRequestSummary>();
+  for (const pull of cachedPulls) {
+    pullLookup.set(pull.number, pull);
+  }
+  for (const pull of refreshedPulls) {
+    pullLookup.set(pull.number, pull);
+  }
+
+  const recentPulls = [...pullLookup.values()]
+    .filter((pull) => new Date(pull.created_at) >= cutoffDate)
+    .sort((left, right) => right.created_at.localeCompare(left.created_at));
+
+  const cachedReviewLookup = new Map<number, PullRequestReview[]>();
+  for (const entry of cachedSnapshot?.raw.pullRequestReviews ?? []) {
+    cachedReviewLookup.set(entry.number, entry.reviews);
+  }
+
+  const externalPulls = recentPulls.filter((pull) => isExternalAssociation(pull.author_association));
+  const pullsNeedingReviewRefresh = externalPulls.filter(
+    (pull) => changedPullNumbers.has(pull.number) || !cachedReviewLookup.has(pull.number),
+  );
+  const refreshedReviews = await runStage(
+    "PR review collection",
+    () =>
+      mapWithConcurrency(
+        pullsNeedingReviewRefresh,
+        Math.max(client.tokenCount, 1),
+        async (pull) => ({
+          number: pull.number,
+          reviews: await fetchPullRequestReviews(client, target.owner, target.repo, pull.number),
+        }),
+      ),
+    [] as Array<{ number: number; reviews: PullRequestReview[] }>,
+    runtimeNotes,
+  );
+
+  const reviewLookup = new Map<number, PullRequestReview[]>();
+  for (const pull of externalPulls) {
+    const refreshed = refreshedReviews.find((entry) => entry.number === pull.number);
+    if (refreshed) {
+      reviewLookup.set(pull.number, refreshed.reviews);
+      continue;
+    }
+
+    if (cachedReviewLookup.has(pull.number)) {
+      reviewLookup.set(pull.number, cachedReviewLookup.get(pull.number) ?? []);
+    }
+  }
+
+  const contributorReadiness = await runStage(
+    "Contributor on-ramp collection",
+    async () => {
+      const [labels, communityProfile, maintainerGuidePath] = await Promise.all([
+        fetchRepoLabels(client, target.owner, target.repo),
+        fetchCommunityProfile(client, target.owner, target.repo),
+        fetchStandardFilePath(client, target.owner, target.repo, MAINTAINER_GUIDE_CANDIDATES),
+      ]);
+      const matchedLabel = labels.find((label) => isGoodFirstIssueLabel(label.name))?.name ?? null;
+      const openGoodFirstIssues = matchedLabel
+        ? await fetchOpenIssuesByLabel(client, target.owner, target.repo, matchedLabel)
+        : 0;
+      const contributingGuidePath =
+        communityProfile?.files?.contributing?.path ??
+        (await fetchStandardFilePath(client, target.owner, target.repo, CONTRIBUTING_GUIDE_CANDIDATES));
+
+      return {
+        repo: repo.name,
+        goodFirstIssueLabel: matchedLabel,
+        openGoodFirstIssues,
+        hasContributingGuide: Boolean(contributingGuidePath),
+        contributingGuidePath,
+        hasMaintainerGuide: Boolean(maintainerGuidePath),
+        maintainerGuidePath,
+      } satisfies RepoReadinessSummary;
+    },
+    cachedSnapshot?.raw.contributorReadiness ?? {
+      repo: repo.name,
+      goodFirstIssueLabel: null,
+      openGoodFirstIssues: 0,
+      hasContributingGuide: false,
+      contributingGuidePath: null,
+      hasMaintainerGuide: false,
+      maintainerGuidePath: null,
+    },
+    runtimeNotes,
+  );
+
+  const contributorLogins = new Set<string>();
+  for (const contributor of repoContributors) {
+    if (contributor.login) {
+      contributorLogins.add(contributor.login.toLowerCase());
+    }
+  }
+
+  const maintainers = new Set<string>();
+  const externalContributors = new Set<string>();
+  const externalPullCounts = new Map<string, number>();
+  const firstReviewLatencies: number[] = [];
+  const mergeLatencies: number[] = [];
+
+  for (const pull of recentPulls) {
+    const login = pull.user?.login?.toLowerCase();
+    const association = pull.author_association;
+
+    if (login) {
+      if (isMaintainerAssociation(association)) {
+        maintainers.add(login);
+      }
+
+      if (isObservedOrgMemberAssociation(association)) {
+        observedOrgMembers.add(login);
+      }
+
+      if (isExternalAssociation(association)) {
+        externalContributors.add(login);
+        externalPullCounts.set(login, (externalPullCounts.get(login) ?? 0) + 1);
+      }
+    }
+
+    if (login && isExternalAssociation(association)) {
+      const reviews = (reviewLookup.get(pull.number) ?? [])
+        .filter((review) => Boolean(review.submitted_at))
+        .sort((left, right) => (left.submitted_at ?? "").localeCompare(right.submitted_at ?? ""));
+      const firstReview = reviews[0];
+
+      if (firstReview?.submitted_at) {
+        const reviewHours =
+          (new Date(firstReview.submitted_at).getTime() - new Date(pull.created_at).getTime()) /
+          3_600_000;
+        if (reviewHours >= 0) {
+          firstReviewLatencies.push(reviewHours);
+        }
+      }
+
+      if (pull.merged_at) {
+        const mergeHours =
+          (new Date(pull.merged_at).getTime() - new Date(pull.created_at).getTime()) / 3_600_000;
+        if (mergeHours >= 0) {
+          mergeLatencies.push(mergeHours);
+        }
+      }
+    }
+  }
+
+  for (const login of observedOrgMembers) {
+    externalContributors.delete(login);
+  }
+
+  for (const login of maintainers) {
+    externalContributors.delete(login);
+  }
+
+  const notes = [
+    "The product is now repo-only. Organization-wide scans are intentionally disabled.",
+    "GitHub token rotation uses GITHUB_TOKEN_1 and GITHUB_TOKEN_2. They should belong to different GitHub accounts if you want separate primary rate-limit budgets.",
+    "Contributor experience metrics are calculated from external-contributor PRs opened in the last 90 days.",
+    "Maintainer count is inferred from public PR author associations marked COLLABORATOR or OWNER.",
+    "Org member count uses public org membership when available and is supplemented by recent PR authors marked MEMBER or OWNER.",
+    "Contributor on-ramp checks look for CONTRIBUTING.md, maintainer-guide style markdown, and a good first issue label.",
+    canIncrementallyRefresh
+      ? `Incremental refresh reused cached PR history from ${cachedSnapshot?.payload.snapshot.generatedAt}.`
+      : "No prior cached PR history was available, so this refresh pulled the full 90-day window.",
+    ...runtimeNotes,
+  ];
+
+  const response: AnalyzeRepoResponse = {
+    target: {
+      owner: target.owner,
+      repo: target.repo,
+      slug: target.slug,
+    },
+    repository: {
+      name: repo.name,
+      fullName: repo.full_name,
+      htmlUrl: repo.html_url,
+      defaultBranch: repo.default_branch,
+      archived: repo.archived,
+      ownerType,
+    },
+    snapshot: {
+      generatedAt: generatedAt.toISOString(),
+      cacheHit: Boolean(cachedSnapshot),
+      baseSnapshotGeneratedAt: cachedSnapshot?.payload.snapshot.generatedAt ?? null,
+      tokensUsed: Math.max(client.tokenCount, 1),
+      notes,
+    },
+    metrics: {
+      vanity: {
+        stars: repo.stargazers_count,
+        forks: repo.forks_count,
+        orgMembers: observedOrgMembers.size,
+        contributors: contributorLogins.size,
+      },
+      pullRequests: {
+        totalLast90Days: recentPulls.length,
+        opened: repoPullCounts.opened + repoPullCounts.merged + repoPullCounts.closed,
+        merged: repoPullCounts.merged,
+        closed: repoPullCounts.closed,
+      },
+      contributorExperience: {
+        maintainers: maintainers.size,
+        externalContributors: externalContributors.size,
+        repeatContributors: [...externalPullCounts.values()].filter((count) => count > 1).length,
+        averageHoursToFirstReview: average(firstReviewLatencies),
+        averageHoursToMerge: average(mergeLatencies),
+      },
+      contributorOnRamp: {
+        hasContributingGuide: contributorReadiness.hasContributingGuide,
+        contributingGuidePath: contributorReadiness.contributingGuidePath,
+        hasMaintainerGuide: contributorReadiness.hasMaintainerGuide,
+        maintainerGuidePath: contributorReadiness.maintainerGuidePath,
+        goodFirstIssueLabel: contributorReadiness.goodFirstIssueLabel,
+        openGoodFirstIssues: contributorReadiness.openGoodFirstIssues,
+      },
+    },
+    analysis: {
+      window: {
+        start: cutoffDate.toISOString(),
+        end: generatedAt.toISOString(),
+        label: "Last 90 days",
+      },
+      cache: {
+        reusedPullRequests: Math.max(cachedPulls.length - changedPullNumbers.size, 0),
+        refreshedPullRequests: refreshedPulls.length,
+        reusedReviews: Math.max(externalPulls.length - pullsNeedingReviewRefresh.length, 0),
+        refreshedReviews: refreshedReviews.length,
+      },
+    },
+  };
+
+  await saveSnapshot(target.owner, target.repo, response.snapshot.generatedAt, response, {
+    publicMembers,
+    repoContributors,
+    repoPullCounts,
+    recentPullRequests: recentPulls,
+    pullRequestReviews: [...reviewLookup.entries()].map(([number, reviews]) => ({ number, reviews })),
+    contributorReadiness,
+  });
+
+  return response;
 }
