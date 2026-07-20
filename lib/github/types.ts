@@ -50,6 +50,14 @@ export type RepoReadinessSummary = {
   maintainerGuidePath: string | null;
 };
 
+export type SnapshotMetricChange = {
+  label: string;
+  previousValue: number;
+  currentValue: number;
+  percentageChange: number | null;
+  tone: "positive" | "negative" | "neutral";
+};
+
 export type AnalyzeRepoResponse = {
   target: {
     owner: string;
@@ -112,6 +120,10 @@ export type AnalyzeRepoResponse = {
       reusedReviews: number;
       refreshedReviews: number;
     };
+  };
+  comparison: {
+    previousSnapshotGeneratedAt: string | null;
+    metrics: SnapshotMetricChange[];
   };
 };
 

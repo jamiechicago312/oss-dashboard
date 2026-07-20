@@ -11,6 +11,7 @@ import type {
   PullRequestReview,
   PullRequestSummary,
   RepoReadinessSummary,
+  SnapshotMetricChange,
 } from "@/lib/github/types";
 
 type PublicMember = {
@@ -101,6 +102,86 @@ function isRateLimitError(error: unknown) {
       error.message.includes("GitHub request failed (403)") ||
       error.message.includes("GitHub request failed (429)"))
   );
+}
+
+function compareMetric(
+  label: string,
+  previousValue: number,
+  currentValue: number,
+  favorableDirection: "increase" | "decrease" | "unknown",
+): SnapshotMetricChange {
+  const difference = currentValue - previousValue;
+  const percentageChange = previousValue === 0 ? null : (difference / Math.abs(previousValue)) * 100;
+  const tone =
+    difference === 0 || favorableDirection === "unknown"
+      ? "neutral"
+      : (difference > 0) === (favorableDirection === "increase")
+        ? "positive"
+        : "negative";
+
+  return { label, previousValue, currentValue, percentageChange, tone };
+}
+
+function buildMetricChanges(
+  previous: AnalyzeRepoResponse | undefined,
+  current: AnalyzeRepoResponse,
+): SnapshotMetricChange[] {
+  if (!previous) {
+    return [];
+  }
+
+  const changes = [
+    compareMetric("Stars", previous.metrics.vanity.stars, current.metrics.vanity.stars, "increase"),
+    compareMetric("Forks", previous.metrics.vanity.forks, current.metrics.vanity.forks, "unknown"),
+    compareMetric(
+      "Contributors",
+      previous.metrics.vanity.contributors,
+      current.metrics.vanity.contributors,
+      "increase",
+    ),
+    compareMetric(
+      "PRs merged",
+      previous.metrics.pullRequests.merged,
+      current.metrics.pullRequests.merged,
+      "increase",
+    ),
+    compareMetric(
+      "Repeat contributors",
+      previous.metrics.contributorExperience.repeatContributors,
+      current.metrics.contributorExperience.repeatContributors,
+      "increase",
+    ),
+    compareMetric(
+      "External contributors",
+      previous.metrics.contributorExperience.externalContributors,
+      current.metrics.contributorExperience.externalContributors,
+      "increase",
+    ),
+    compareMetric(
+      "Open good first issues",
+      previous.metrics.contributorOnRamp.openGoodFirstIssues,
+      current.metrics.contributorOnRamp.openGoodFirstIssues,
+      "unknown",
+    ),
+  ];
+
+  const previousFirstReview = previous.metrics.contributorExperience.averageHoursToFirstReview;
+  const currentFirstReview = current.metrics.contributorExperience.averageHoursToFirstReview;
+  if (previousFirstReview !== null && currentFirstReview !== null) {
+    changes.splice(
+      4,
+      0,
+      compareMetric("Time to first review", previousFirstReview, currentFirstReview, "decrease"),
+    );
+  }
+
+  const previousMerge = previous.metrics.contributorExperience.averageHoursToMerge;
+  const currentMerge = current.metrics.contributorExperience.averageHoursToMerge;
+  if (previousMerge !== null && currentMerge !== null) {
+    changes.splice(5, 0, compareMetric("Time to merge", previousMerge, currentMerge, "decrease"));
+  }
+
+  return changes;
 }
 
 async function runStage<T>(
@@ -735,7 +816,13 @@ export async function analyzeOrganization(input: string): Promise<AnalyzeRepoRes
         refreshedReviews: refreshedReviews.length,
       },
     },
+    comparison: {
+      previousSnapshotGeneratedAt: cachedSnapshot?.payload.snapshot.generatedAt ?? null,
+      metrics: [],
+    },
   };
+
+  response.comparison.metrics = buildMetricChanges(cachedSnapshot?.payload, response);
 
   await saveSnapshot(target.owner, target.repo, response.snapshot.generatedAt, response, {
     publicMembers,
